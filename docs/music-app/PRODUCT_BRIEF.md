@@ -1,7 +1,7 @@
 # Brief de Produto — Aplicativo de Música
 
-**Status:** proposta inicial para revisão  
-**Nome do produto:** pendente  
+**Status:** MVP aprovado para implementação em 2026-10-14; requisitos podem evoluir via PR  
+**Nome de trabalho:** Sonora (pode ser refinado antes de uma publicação)  
 **Tipo de produto:** aplicação web de descoberta e reprodução de música  
 **Referência funcional:** [Spotify-clone-app-react](https://github.com/thiagosprestes/Spotify-clone-app-react)  
 **Regra:** esta referência inspira a análise de funcionalidades; o código será desenvolvido de forma própria.
@@ -83,10 +83,10 @@ Referências oficiais:
 
 Na documentação consultada em 14/10/2026, o modo de desenvolvimento da API do Spotify está sujeito a limites específicos, incluindo até cinco usuários autorizados por app e requisito Premium para o proprietário do app. Esses limites devem ser conferidos novamente no momento de implementar uma integração.
 
-## 8. Decisões pendentes
+## 8. Decisões futuras
 
-- Nome e identidade visual próprios.
-- Aprovação da stack proposta no ADR-0001.
-- Origem e licenças do catálogo de demonstração.
-- Confirmar se o produto será apenas uma demonstração web ou terá objetivo de publicação.
+- Refinar o nome e a identidade visual próprios antes de uma eventual publicação.
+- Stack aprovada no ADR-0001; futuras mudanças estruturais exigem nova decisão.
+- Ampliar o catálogo apenas quando a origem e as licenças de cada mídia forem registradas.
+- Avaliar publicação e requisitos de produto depois da validação do MVP.
 - Confirmar se existe um caso de uso independente que justifique avaliar uma integração com o Spotify.

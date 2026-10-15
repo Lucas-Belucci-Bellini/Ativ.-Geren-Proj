@@ -1,7 +1,7 @@
 # ADR-0001 — Stack inicial do aplicativo de música
 
 - **Data:** 2026-10-14
-- **Status:** **PROPOSTA — aguardando aprovação de Lucas**
+- **Status:** **APROVADA por Lucas em 2026-10-14**
 - **Escopo:** MVP web demonstrativo
 - **Referência funcional:** [thiagosprestes/Spotify-clone-app-react](https://github.com/thiagosprestes/Spotify-clone-app-react)
 
@@ -23,7 +23,7 @@ A primeira entrega precisa testar interface, busca, biblioteca local e player se
 
 ## Opções consideradas
 
-### A. React + TypeScript + Vite (preferida para o MVP)
+### A. React + TypeScript + Vite (selecionada para o MVP)
 
 **Vantagens**
 - Mantém React como paradigma conhecido da referência, adicionando tipagem estática.
@@ -59,7 +59,7 @@ A primeira entrega precisa testar interface, busca, biblioteca local e player se
 
 Não selecionado para a primeira fase, pois o alvo inicial proposto é web responsiva. Pode ser reavaliado se houver um requisito explícito de aplicativo móvel nativo.
 
-## Proposta de decisão
+## Decisão aprovada
 
 **Frontend:** React + TypeScript + Vite, com CSS próprio ou CSS Modules e sem framework visual obrigatório.  
 **Estado:** React state/Context apenas onde necessário; adiar Redux/Zustand até demonstrar necessidade.  
@@ -83,14 +83,14 @@ Além disso, a [Spotify Developer Policy](https://developer.spotify.com/policy) 
 
 ## Consequências
 
-Se aprovada, a equipe poderá criar a estrutura do frontend e os primeiros componentes. O MVP não será um serviço de streaming completo e não terá contas sincronizadas. Uma versão com backend, uploads, contas ou integração de terceiros precisa de escopo e decisões adicionais.
+A decisão foi aprovada e a estrutura inicial do frontend e os componentes do MVP foram criados na branch `feature/music-app-mvp-planning`. O MVP não será um serviço de streaming completo e não terá contas sincronizadas. Uma versão com backend, uploads, contas ou integração de terceiros precisa de escopo e decisões adicionais.
 
-## Critérios de validação da proposta
+## Registro de aprovação e validação da decisão
 
-- [ ] Lucas aprovou a escolha de React + TypeScript + Vite.
-- [ ] Lucas confirmou que a primeira entrega será uma aplicação web responsiva.
-- [ ] Foi definida a origem legal do áudio demonstrativo.
-- [ ] Os critérios de aceitação em `docs/music-app/PRODUCT_BRIEF.md` foram aceitos ou revisados.
-- [ ] Os gates de CI específicos da stack serão adicionados após a estrutura inicial.
+- [x] Lucas aprovou a escolha de React + TypeScript + Vite.
+- [x] Lucas confirmou que a primeira entrega será uma aplicação web responsiva.
+- [x] O áudio da demonstração é sintetizado localmente pelo navegador e não depende de gravações de terceiros.
+- [x] Os critérios do MVP guiam a primeira implementação e podem ser refinados com base nos testes.
+- [x] O workflow `music-app-ci.yml` executa typecheck, testes Vitest e build.
 
-**Importante:** até a aprovação explícita desta ADR, a decisão é uma proposta; a implementação principal permanece bloqueada pelas regras do repositório.
+A decisão de stack e o alvo web responsivo estão aprovados. Backend, banco remoto e integrações externas continuam pendentes de requisitos e decisões próprias.

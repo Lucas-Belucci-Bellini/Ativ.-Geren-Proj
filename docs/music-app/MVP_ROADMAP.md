@@ -1,45 +1,45 @@
 # Roadmap do MVP — Aplicativo de Música
 
-**Status:** planejamento proposto; implementação principal aguarda aprovação do ADR-0001.
+**Status:** stack aprovada por Lucas em 2026-10-14; primeira implementação publicada para validação.
 
 ## Fase 0 — Decisões e preparação
 
-- [ ] Aprovar ou revisar a proposta de stack no ADR-0001.
+- [x] Aprovar a stack React + TypeScript + Vite no ADR-0001.
 - [ ] Escolher o nome do produto e uma identidade visual original.
 - [ ] Definir a origem do catálogo e registrar licença/atribuição de cada mídia.
-- [ ] Confirmar se o primeiro alvo é uma aplicação web responsiva.
+- [x] Confirmar o primeiro alvo como aplicação web responsiva.
 - [ ] Manter qualquer integração externa separada até revisar seus termos e limites.
 
-**Saída esperada:** requisitos e arquitetura aprovados antes da criação da estrutura de aplicação.
+**Saída esperada:** concluída para o MVP inicial; novos requisitos estruturais continuam sujeitos a ADR.
 
 ## Fase 1 — Estrutura visual
 
-- [ ] Criar layout responsivo com navegação principal, área de conteúdo e player persistente.
-- [ ] Implementar páginas/visões de Início, Busca e Biblioteca.
-- [ ] Criar componentes tipados para faixa, álbum, artista e playlist.
-- [ ] Usar dados demonstrativos e assets originais ou devidamente licenciados.
-- [ ] Incluir estados vazios, carregamento e erro.
+- [x] Criar layout responsivo com navegação principal, área de conteúdo e player persistente.
+- [x] Implementar visões de Início, Busca e Biblioteca.
+- [x] Criar tipos para faixas e catálogo demonstrativo; modelos dedicados de álbum/artista/playlist ficam para evolução.
+- [x] Usar metadados fictícios e arte abstrata original em CSS.
+- [x] Incluir estados vazios; erros de áudio são tratados, sem estado remoto de carregamento.
 
 **Saída esperada:** interface consistente e navegável, sem depender de login ou credenciais externas.
 
 ## Fase 2 — Interações principais
 
-- [ ] Busca local por título, artista e álbum.
-- [ ] Favoritar/desfavoritar uma faixa.
-- [ ] Persistir favoritos no navegador, explicando que não existe sincronização entre dispositivos.
-- [ ] Implementar player de áudio usando apenas mídia autorizada.
-- [ ] Sincronizar controles, progresso, duração e faixa selecionada com o estado de reprodução.
-- [ ] Tratar erros de mídia e transições entre faixas.
+- [x] Busca local por título, artista, álbum e gênero.
+- [x] Favoritar/desfavoritar uma faixa.
+- [x] Persistir favoritos no navegador, explicando que não existe sincronização entre dispositivos.
+- [x] Implementar áudio demonstrativo sintetizado localmente com Web Audio API.
+- [x] Sincronizar play/pause, progresso, duração, volume e seleção de faixa.
+- [x] Tratar incompatibilidade do Web Audio, pausar, avançar e voltar entre faixas.
 
 **Saída esperada:** MVP demonstrável com interações reais, não apenas botões decorativos.
 
 ## Fase 3 — Qualidade e acessibilidade
 
-- [ ] Testar componentes e interações críticas.
+- [x] Criar testes de unidade para busca, navegação pelo catálogo e favoritos locais.
 - [ ] Validar navegação por teclado e foco visível.
 - [ ] Validar layouts pequenos e grandes.
-- [ ] Adicionar lint, formatação, testes e build reais ao GitHub Actions após aprovar a stack.
-- [ ] Atualizar README com pré-requisitos, configuração e comandos efetivamente existentes.
+- [x] Adicionar typecheck, testes Vitest e build ao GitHub Actions; lint/formatação dedicada ficam como melhoria próxima.
+- [x] Documentar pré-requisitos, configuração, comandos e limitações nos READMEs.
 - [ ] Revisar dependências e evitar credenciais no repositório.
 
 **Saída esperada:** build reproduzível, critérios de aceitação verificados e resultados registrados.

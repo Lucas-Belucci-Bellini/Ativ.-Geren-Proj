@@ -37,3 +37,10 @@ O script `scripts/ci/verify_repository.py` não instala dependências e termina 
 - [rea — workflows](https://github.com/morluto/rea/tree/main/.github/workflows)
 - [NEXORA — CI](https://github.com/Lucas-Belucci-Bellini/NEXORA/blob/main/.github/workflows/ci.yml)
 - [Project-Vanguard — CI](https://github.com/Lucas-Belucci-Bellini/Project-Vanguard/blob/main/.github/workflows/ci.yml)
+
+
+## Workflow do aplicativo Sonora
+
+O workflow `.github/workflows/music-app-ci.yml` instala as dependências e executa typecheck TypeScript, testes Vitest e build de produção quando arquivos de `music-app/` ou o próprio workflow mudam. Ele usa Node.js 22.16.0, compatível com os requisitos documentados do Vite 8 e Vitest 5.
+
+A instalação atual usa versões exatas das dependências diretas em `music-app/package.json`, mas ainda não possui `package-lock.json` versionado. Até adicionar e revisar esse lockfile, a resolução das dependências transitivas não é completamente reproduzível entre execuções; isso permanece como pendência antes de tratar o pipeline como gate de produção.

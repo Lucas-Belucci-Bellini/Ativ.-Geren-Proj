@@ -142,3 +142,15 @@ Nunca afirmar que todo o projeto está livre de erros com base em testes parciai
 ## 10. Estado atual
 
 Este arquivo inaugura o processo de governança. Ele não afirma que a stack do projeto já foi escolhida nem que a implementação pode começar. A primeira entrega de planejamento deve avaliar o contexto real do repositório e produzir a decisão formal de frontend/backend antes de começar a codificação.
+
+
+## 11. Verificação automatizada e integração segura
+
+- Toda mudança enviada ao GitHub deve passar pelo workflow `.github/workflows/repository-guard.yml` quando acionado pelos eventos configurados.
+- O workflow atual valida a presença da documentação essencial, procura marcadores de conflito Git nos arquivos de texto rastreados e verifica whitespace do diff em pull requests.
+- Toda contribuição por pull request deve preencher `.github/pull_request_template.md` com objetivo, documentação, verificações, evidências e riscos.
+- Falhas de CI devem ser corrigidas na causa; não desabilitar checks nem mascarar falhas para obter um status verde.
+- A CI atual é apenas uma primeira barreira neutra em relação à linguagem. Ela não substitui testes unitários, integração, análise estática, build ou revisão humana.
+- Após aprovar a stack em ADR, registrar e implementar os gates específicos da stack (formatador, lint, testes, build e verificações adicionais justificadas).
+- Para tornar o gate obrigatório para merges, o responsável deve configurar a proteção da branch-base no GitHub e marcar o check **Governance + repository integrity** como obrigatório. A criação do workflow não configura essa proteção automaticamente.
+- O desenho toma como referência os princípios observados nos workflows de [rea](https://github.com/morluto/rea/tree/main/.github/workflows), [NEXORA](https://github.com/Lucas-Belucci-Bellini/NEXORA/blob/main/.github/workflows/ci.yml) e [Project-Vanguard](https://github.com/Lucas-Belucci-Bellini/Project-Vanguard/blob/main/.github/workflows/ci.yml); os comandos específicos desses repositórios não devem ser copiados sem verificar compatibilidade com este projeto.

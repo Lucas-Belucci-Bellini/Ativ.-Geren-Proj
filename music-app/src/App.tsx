@@ -132,6 +132,22 @@ export default function App() {
     setRecentIds((current) => [nextTrack.id, ...current.filter((id) => id !== nextTrack.id)].slice(0, 5));
   }, [isPlaying, progress, selectedTrack, volume]);
 
+  useEffect(() => {
+    const handleKeyboardShortcut = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setActiveView("search");
+        searchInputRef.current?.focus();
+      }
+      if (event.key === "Escape" && document.activeElement === searchInputRef.current) {
+        setQuery("");
+        searchInputRef.current?.blur();
+      }
+    };
+    window.addEventListener("keydown", handleKeyboardShortcut);
+    return () => window.removeEventListener("keydown", handleKeyboardShortcut);
+  }, []);
+
   useEffect(() => () => { engineRef.current?.dispose(); }, []);
 
   function startTrack(track: Track, restart = false) {

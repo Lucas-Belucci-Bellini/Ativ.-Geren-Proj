@@ -128,3 +128,14 @@ Nunca afirme que o projeto inteiro está livre de erros com base em uma análise
 Estas regras não concedem permissões que a ferramenta não possui nem substituem políticas de segurança, controles do GitHub ou aprovação humana. Se uma ação exigir acesso ou autorização indisponível, informe a limitação e forneça o material necessário para o responsável concluir a tarefa.
 
 **Regra final: leia as instruções antes de trabalhar, documente as alterações relevantes, verifique os erros, registre bugs confirmados em Issues quando houver permissão e seja transparente sobre tudo o que não conseguiu validar.**
+
+
+## 9. Arquitetura e planejamento antes do código
+
+Antes de iniciar a implementação de funcionalidades, leia também `docs/PROJECT_RULES.md` e os registros em `docs/architecture/decisions/`.
+
+- Documente requisitos, arquitetura, responsabilidades, contratos, dados, segurança e testes antes de codificar.
+- A escolha de frontend e backend deve ser comparada, justificada e registrada em ADR antes da criação da estrutura principal da aplicação.
+- A stack TypeScript/Rust/Python/PostgreSQL descrita em `docs/PROJECT_RULES.md` é uma recomendação de Lucas Belucci Bellini inspirada nas diretrizes do repositório Cosmos; não presuma que todas as tecnologias são obrigatórias ou já foram aprovadas para este projeto.
+- Não comece a implementação principal enquanto a decisão de stack estiver pendente. É permitido inspecionar o repositório, levantar requisitos, comparar alternativas e preparar documentação de planejamento.
+- Não trate uma proposta como decisão aprovada. Registre as pendências e solicite aprovação quando necessário.

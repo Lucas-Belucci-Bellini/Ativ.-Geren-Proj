@@ -66,7 +66,7 @@ Não selecionado para a primeira fase, pois o alvo inicial proposto é web respo
 **Backend do MVP:** nenhum. O primeiro incremento usa catálogo de demonstração e mídia autorizada.  
 **Persistência do MVP:** LocalStorage somente para preferências/favoritos não sensíveis, com a limitação documentada.  
 **Dados remotos:** não escolher banco ou API até que uma funcionalidade aprovada precise deles.  
-**Qualidade:** propor Vitest + React Testing Library para testes unitários/componentes; definir ferramenta de lint/formatação e comandos exatos durante a estrutura inicial. Testes de ponta a ponta podem ser avaliados após a primeira tela funcional.
+**Qualidade:** usar Vitest para testes unitários de domínio no primeiro incremento; adicionar React Testing Library e ambiente DOM quando começarem os testes de componentes e interações visuais. Definir ferramenta de lint/formatação em uma tarefa posterior. Testes de ponta a ponta podem ser avaliados após a primeira tela funcional.
 
 A recomendação TypeScript para frontend está alinhada às orientações de `docs/PROJECT_RULES.md`. Não há razão demonstrada para adicionar Rust, Python ou PostgreSQL nesta primeira fase. Caso surja uma necessidade de backend, ela deve ser avaliada em um ADR posterior, em vez de introduzir tecnologias por preferência.
 

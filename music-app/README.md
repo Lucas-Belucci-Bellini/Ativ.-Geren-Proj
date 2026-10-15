@@ -5,7 +5,7 @@ Sonora é uma aplicação web responsiva criada com React, TypeScript e Vite. A 
 ## Funcionalidades implementadas
 
 - Página inicial com seleções demonstrativas.
-- Busca por título, artista, álbum ou gênero, ignorando diferenças de maiúsculas e acentuação.
+- Busca por título, artista, álbum ou gênero, ignorando diferenças de maiúsculas e acentuação. O atalho Ctrl/⌘ + K abre a busca.
 - Filtros por gênero.
 - Biblioteca de faixas favoritas, persistida no armazenamento local do navegador.
 - Player com tocar/pausar, faixa anterior/próxima, controle de progresso e volume.

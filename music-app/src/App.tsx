@@ -107,6 +107,7 @@ export default function App() {
   const [progress, setProgress] = useState(0);
   const [volume, setVolume] = useState(0.68);
   const engineRef = useRef<ToneEngine | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const selectedTrack = TRACKS.find((track) => track.id === selectedTrackId) ?? TRACKS[0];
   const favoriteTracks = useMemo(() => TRACKS.filter((track) => favorites.includes(track.id)), [favorites]);
@@ -219,9 +220,9 @@ export default function App() {
           </div>
           <label className="search-box">
             <Icon name="search" size={19} />
-            <input type="search" placeholder="O que você quer ouvir?" aria-label="Buscar música, artista ou álbum" value={query} onFocus={() => { if (query.trim()) setActiveView("search"); }} onChange={(event) => onSearchChange(event.target.value)} />
+            <input ref={searchInputRef} type="search" placeholder="O que você quer ouvir?" aria-label="Buscar música, artista ou álbum" value={query} onFocus={() => { if (query.trim()) setActiveView("search"); }} onChange={(event) => onSearchChange(event.target.value)} />
             {query && <button type="button" className="search-clear" aria-label="Limpar busca" onClick={() => setQuery("")}><Icon name="close" size={16} /></button>}
-            <kbd>⌘ K</kbd>
+            <kbd>Ctrl / ⌘ K</kbd>
           </label>
           <button type="button" className="profile-chip" onClick={() => setActiveView("library")} aria-label="Abrir biblioteca"><span className="profile-avatar">S</span><span>Visitante</span></button>
         </header>

@@ -139,3 +139,14 @@ Antes de iniciar a implementação de funcionalidades, leia também `docs/PROJEC
 - A stack TypeScript/Rust/Python/PostgreSQL descrita em `docs/PROJECT_RULES.md` é uma recomendação de Lucas Belucci Bellini inspirada nas diretrizes do repositório Cosmos; não presuma que todas as tecnologias são obrigatórias ou já foram aprovadas para este projeto.
 - Não comece a implementação principal enquanto a decisão de stack estiver pendente. É permitido inspecionar o repositório, levantar requisitos, comparar alternativas e preparar documentação de planejamento.
 - Não trate uma proposta como decisão aprovada. Registre as pendências e solicite aprovação quando necessário.
+
+
+## 10. CI, bots de verificação e pull requests
+
+- Consulte `docs/CI_AND_REVIEW.md` antes de alterar workflows ou propor mudanças no fluxo de integração.
+- Não desative, enfraqueça ou contorne um check para fazer uma alteração passar. Investigue a falha e corrija a causa; se o check estiver incorreto, proponha uma alteração documentada e justificada.
+- Abra pull requests com o template `.github/pull_request_template.md`, descrevendo objetivo, alterações, documentação, testes reais, evidências e riscos.
+- Trate os checks automáticos como uma barreira mínima, não como prova de ausência de bugs nem substituto da revisão humana.
+- Não declare CI verde sem consultar o resultado real da execução. Se não houver execução disponível, informe que está pendente.
+- Depois que a stack for aprovada em ADR, amplie o workflow com comandos reais de formatação, lint, testes e build para as tecnologias escolhidas. Não adicione passos vazios que sempre retornam sucesso.
+- Não presuma que a existência de um workflow bloqueia merges: a exigência de checks precisa ser configurada na proteção de branch do GitHub.

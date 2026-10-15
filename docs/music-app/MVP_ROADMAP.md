@@ -5,10 +5,10 @@
 ## Fase 0 — Decisões e preparação
 
 - [x] Aprovar a stack React + TypeScript + Vite no ADR-0001.
-- [ ] Escolher o nome do produto e uma identidade visual original.
-- [ ] Definir a origem do catálogo e registrar licença/atribuição de cada mídia.
+- [ ] Refinar nome e identidade visual antes de uma eventual publicação.
+- [ ] Ampliar o catálogo apenas quando a origem e as licenças de cada mídia forem registradas.
 - [x] Confirmar o primeiro alvo como aplicação web responsiva.
-- [ ] Manter qualquer integração externa separada até revisar seus termos e limites.
+- [ ] Manter integrações externas separadas até revisar termos e limites.
 
 **Saída esperada:** concluída para o MVP inicial; novos requisitos estruturais continuam sujeitos a ADR.
 
@@ -18,53 +18,59 @@
 - [x] Implementar visões de Início, Busca e Biblioteca.
 - [x] Criar tipos para faixas e catálogo demonstrativo; modelos dedicados de álbum/artista/playlist ficam para evolução.
 - [x] Usar metadados fictícios e arte abstrata original em CSS.
-- [x] Incluir estados vazios; erros de áudio são tratados, sem estado remoto de carregamento.
-
-**Saída esperada:** interface consistente e navegável, sem depender de login ou credenciais externas.
+- [x] Incluir estados vazios e tratamento de erros de áudio.
 
 ## Fase 2 — Interações principais
 
 - [x] Busca local por título, artista, álbum e gênero.
 - [x] Favoritar/desfavoritar uma faixa.
-- [x] Persistir favoritos no navegador, explicando que não existe sincronização entre dispositivos.
-- [x] Implementar áudio demonstrativo sintetizado localmente com Web Audio API.
+- [x] Persistir favoritos no navegador, sem sincronização entre dispositivos.
+- [x] Implementar áudio demonstrativo sintetizado com Web Audio API.
 - [x] Sincronizar play/pause, progresso, duração, volume e seleção de faixa.
-- [x] Tratar incompatibilidade do Web Audio, pausar, avançar e voltar entre faixas.
-
-**Saída esperada:** MVP demonstrável com interações reais, não apenas botões decorativos.
+- [x] Tratar incompatibilidade do Web Audio e transições entre faixas.
 
 ## Fase 3 — Qualidade e acessibilidade
 
-- [x] Criar testes de unidade para busca, navegação pelo catálogo e favoritos locais.
+- [x] Criar testes unitários de domínio para busca, navegação pelo catálogo e favoritos locais.
 - [ ] Validar navegação por teclado e foco visível.
-- [ ] Validar layouts pequenos e grandes.
-- [x] Adicionar typecheck, testes Vitest e build ao GitHub Actions; lint/formatação dedicada ficam como melhoria próxima.
-- [x] Documentar pré-requisitos, configuração, comandos e limitações nos READMEs.
-- [ ] Revisar dependências e evitar credenciais no repositório.
-
-**Saída esperada:** build reproduzível, critérios de aceitação verificados e resultados registrados.
+- [ ] Validar layouts pequenos e grandes manualmente.
+- [x] Adicionar typecheck, testes Vitest e build ao GitHub Actions.
+- [x] Documentar pré-requisitos, comandos e limitações.
+- [ ] Adicionar lockfile npm e revisar dependências.
 
 ## Fase 4 — Persistência e serviços (somente se aprovados)
 
-- [ ] Confirmar quais dados precisam sincronizar entre dispositivos.
+- [ ] Confirmar dados que precisariam sincronizar entre dispositivos.
 - [ ] Definir modelo de conta, biblioteca e playlists.
-- [ ] Escolher backend e banco com ADR específico antes de implementá-los.
-- [ ] Definir contratos, autenticação, autorização, migrações e estratégia de backup.
-- [ ] Testar acesso indevido entre usuários e validação das entradas.
-
-**Saída esperada:** escopo do backend justificado, com contratos e controles de segurança documentados.
+- [ ] Aprovar ADR específico antes de backend e banco de dados.
+- [ ] Definir contratos, auth, autorização, migrações e backups.
+- [ ] Testar isolamento entre usuários e validação de entrada.
 
 ## Fase 5 — Integrações externas (opcional)
 
-- [ ] Definir o caso de uso independente da integração.
-- [ ] Rever as políticas, termos, limitações de quota e permissões atuais do provedor.
-- [ ] Se aplicável, utilizar OAuth PKCE para uma SPA quando o fluxo de autorização escolhido exigir e for compatível com a documentação oficial.
+- [ ] Definir caso de uso independente.
+- [ ] Revisar políticas e permissões atuais do provedor.
+- [ ] Usar OAuth PKCE quando apropriado e documentado.
 - [ ] Nunca incluir client secret no bundle do navegador.
-- [ ] Implementar limites, erros 401/403/429, expiração e revogação de autorização.
-- [ ] Não alegar suporte a reprodução completa sem confirmar as permissões e requisitos reais do serviço.
+- [ ] Tratar limites, erros, expiração e revogação.
+- [ ] Não alegar suporte a reprodução completa sem confirmar permissões.
 
-**Saída esperada:** integração separada, documentada e compatível com as condições aplicáveis.
+## Fase 6 — Aplicativo instalável para Windows
+
+Plano: [docs/deployment/INSTALLER_PLAN.md](../deployment/INSTALLER_PLAN.md). ADR-0002 aguarda aprovação e nenhum instalador foi publicado.
+
+- [ ] Aprovar ADR-0002: Tauri 2 + NSIS EXE para Windows x64.
+- [ ] Criar e revisar package-lock.json; migrar CI para npm ci.
+- [ ] Resolver dependências de fontes/assets externos para o primeiro início offline.
+- [ ] Configurar Tauri, ícones, identificador, versão e instalador.
+- [ ] Criar CI em runner Windows; PRs geram artefatos de teste, não releases públicas.
+- [ ] Validar instalação, primeiro início, upgrade e desinstalação numa máquina virtual limpa.
+- [ ] Publicar GitHub Release versionada com notas e checksum após CI e smoke tests aprovados.
+- [ ] Avaliar assinatura de código antes de divulgação ampla.
+- [ ] Planejar atualizações automáticas assinadas como etapa separada.
+
+**Saída esperada:** uma pessoa sem ferramentas de desenvolvimento consegue baixar o instalador oficial, instalar e abrir o Sonora.
 
 ## Definition of Done
 
-Uma tarefa só está concluída quando atende a seus critérios, a documentação corresponde ao comportamento real, os checks disponíveis foram executados e os resultados são registrados. Se algo não puder ser testado, a limitação deve aparecer no PR; nunca se deve marcar um check como aprovado sem evidência.
+Uma tarefa só está concluída quando atende aos critérios, a documentação reflete o comportamento real e os checks disponíveis foram executados. Para release instalável, os critérios do plano de instalação também precisam passar. Limitações não testadas devem ser documentadas.

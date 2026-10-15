@@ -1,2 +1,2 @@
 # Ativ.-Geren-Proj
-Repositório para a matéria de Gerenciamento de Projetos
+Repositório para a matéria de Metodologias Ágeis

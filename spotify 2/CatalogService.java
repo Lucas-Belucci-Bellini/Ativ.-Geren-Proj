@@ -5,11 +5,17 @@ import com.tify.model.Track;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Scanner;
 import java.util.function.Predicate;
 
 public class CatalogService {
+
+    private static final String TEST_AUDIO_PATH =
+            "src/main/resources/audio/test-tone-440hz.wav";
 
     private final List<Track> tracks;
 
@@ -18,32 +24,14 @@ public class CatalogService {
     }
 
     private static List<Track> initialCatalog() {
-        return List.of(
-                new Track("t-001", "Bohemian Rhapsody", "Queen", 354,
-                        new File("covers/bohemian_rhapsody.jpg"),
-                        new File("audio/bohemian_rhapsody.mp3")),
-                new Track("t-002", "Imagine", "John Lennon", 183,
-                        new File("covers/imagine.jpg"),
-                        new File("audio/imagine.mp3")),
-                new Track("t-003", "Billie Jean", "Michael Jackson", 294,
-                        new File("covers/billie_jean.jpg"),
-                        new File("audio/billie_jean.mp3")),
-                new Track("t-004", "Stairway to Heaven", "Led Zeppelin", 482,
-                        new File("covers/stairway_to_heaven.jpg"),
-                        new File("audio/stairway_to_heaven.mp3")),
-                new Track("t-005", "Hotel California", "Eagles", 391,
-                        new File("covers/hotel_california.jpg"),
-                        new File("audio/hotel_california.mp3")),
-                new Track("t-006", "Smells Like Teen Spirit", "Nirvana", 301,
-                        new File("covers/smells_like_teen_spirit.jpg"),
-                        new File("audio/smells_like_teen_spirit.mp3")),
-                new Track("t-007", "Hey Jude", "The Beatles", 431,
-                        new File("covers/hey_jude.jpg"),
-                        new File("audio/hey_jude.mp3")),
-                new Track("t-008", "Like a Rolling Stone", "Bob Dylan", 369,
-                        new File("covers/like_a_rolling_stone.jpg"),
-                        new File("audio/like_a_rolling_stone.mp3"))
-        );
+        return List.of(new Track(
+                "test-tone-001",
+                "Tom de teste 440 Hz",
+                "Ativ-Met-Ageis (fixture sintético)",
+                2,
+                null,
+                new File(TEST_AUDIO_PATH)
+        ));
     }
 
     public List<Track> getAllTracks() {
@@ -51,19 +39,25 @@ public class CatalogService {
     }
 
     public Optional<Track> findById(String id) {
+        Objects.requireNonNull(id, "id");
         return tracks.stream()
-                .filter(t -> t.id().equals(id))
+                .filter(track -> track.id().equals(id))
                 .findFirst();
     }
 
+    public Track findByIdOrThrow(String id) {
+        return findById(id).orElseThrow(() ->
+                new NoSuchElementException("Faixa não encontrada para o ID: " + id));
+    }
+
     public List<Track> findByTitle(String term) {
-        String needle = term.toLowerCase();
-        return filterBy(t -> t.title().toLowerCase().contains(needle));
+        String needle = Objects.requireNonNull(term, "term").toLowerCase(Locale.ROOT);
+        return filterBy(track -> track.title().toLowerCase(Locale.ROOT).contains(needle));
     }
 
     public List<Track> findByArtist(String artist) {
-        String needle = artist.toLowerCase();
-        return filterBy(t -> t.artist().toLowerCase().contains(needle));
+        String needle = Objects.requireNonNull(artist, "artist").toLowerCase(Locale.ROOT);
+        return filterBy(track -> track.artist().toLowerCase(Locale.ROOT).contains(needle));
     }
 
     public int getTrackCount() {
@@ -73,16 +67,100 @@ public class CatalogService {
     public void addTrack(Track track) {
         Objects.requireNonNull(track, "track");
         if (findById(track.id()).isPresent()) {
-            throw new IllegalArgumentException("Duplicate track id: " + track.id());
+            throw new IllegalArgumentException("ID de faixa duplicado: " + track.id());
         }
         tracks.add(track);
     }
 
     public boolean removeById(String id) {
-        return tracks.removeIf(t -> t.id().equals(id));
+        Objects.requireNonNull(id, "id");
+        return tracks.removeIf(track -> track.id().equals(id));
     }
 
     private List<Track> filterBy(Predicate<Track> predicate) {
         return tracks.stream().filter(predicate).toList();
+    }
+
+    public static void main(String[] args) {
+        new CatalogService().runMenu();
+    }
+
+    private void runMenu() {
+        try (Scanner scanner = new Scanner(System.in)) {
+            boolean running = true;
+
+            while (running) {
+                System.out.println("\n=== CATÁLOGO DE MÚSICAS (DADOS DE TESTE) ===");
+                System.out.println("1. Listar faixas");
+                System.out.println("2. Buscar por ID");
+                System.out.println("3. Buscar por título");
+                System.out.println("4. Buscar por artista");
+                System.out.println("0. Sair");
+                System.out.print("Escolha uma opção: ");
+
+                if (!scanner.hasNextLine()) {
+                    break;
+                }
+
+                String option = scanner.nextLine().trim();
+                switch (option) {
+                    case "1" -> showTracks(getAllTracks());
+                    case "2" -> searchById(scanner);
+                    case "3" -> searchByTitle(scanner);
+                    case "4" -> searchByArtist(scanner);
+                    case "0" -> {
+                        System.out.println("Programa encerrado.");
+                        running = false;
+                    }
+                    default -> System.out.println("Opção inválida. Tente novamente.");
+                }
+            }
+        }
+    }
+
+    private void searchById(Scanner scanner) {
+        String id = askForText(scanner, "Digite o ID da faixa: ");
+        if (id == null) {
+            return;
+        }
+
+        Optional<Track> track = findById(id);
+        if (track.isPresent()) {
+            showTracks(List.of(track.get()));
+        } else {
+            System.out.println("Nenhuma faixa encontrada com esse ID.");
+        }
+    }
+
+    private void searchByTitle(Scanner scanner) {
+        String title = askForText(scanner, "Digite o título ou parte dele: ");
+        if (title == null || title.isBlank()) {
+            System.out.println("Digite um título para pesquisar.");
+            return;
+        }
+        showTracks(findByTitle(title));
+    }
+
+    private void searchByArtist(Scanner scanner) {
+        String artist = askForText(scanner, "Digite o artista ou parte dele: ");
+        if (artist == null || artist.isBlank()) {
+            System.out.println("Digite um artista para pesquisar.");
+            return;
+        }
+        showTracks(findByArtist(artist));
+    }
+
+    private String askForText(Scanner scanner, String prompt) {
+        System.out.print(prompt);
+        return scanner.hasNextLine() ? scanner.nextLine().trim() : null;
+    }
+
+    private void showTracks(List<Track> results) {
+        if (results.isEmpty()) {
+            System.out.println("Nenhuma faixa encontrada.");
+            return;
+        }
+
+        results.forEach(track -> System.out.println(track.resumo()));
     }
 }

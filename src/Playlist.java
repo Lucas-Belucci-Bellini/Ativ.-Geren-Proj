@@ -1,5 +1,3 @@
-package spotify.playlist;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,8 +6,6 @@ public class Playlist {
 
     private final String id;
     private final String nome;
-
-).
     private final List<String> faixaIds = new ArrayList<>();
 
     public Playlist(String id, String nome) {

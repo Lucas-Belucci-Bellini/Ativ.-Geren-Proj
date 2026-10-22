@@ -1,5 +1,3 @@
-package com.tify.model;
-
 import java.io.File;
 import java.util.Objects;
 
@@ -26,11 +24,6 @@ public record Track(
         return "%02d:%02d".formatted(durationSeconds / 60, durationSeconds % 60);
     }
 
-    public String resumo() {
-        return "%s | %s — %s | %s"
-                .formatted(id, title, artist, formattedDuration());
-    }
-
     @Override
     public boolean equals(Object o) {
         return o instanceof Track t && id.equals(t.id);
@@ -43,6 +36,7 @@ public record Track(
 
     @Override
     public String toString() {
-        return resumo();
+        return "Track{id=%s, title=%s, artist=%s, duration=%s}"
+                .formatted(id, title, artist, formattedDuration());
     }
 }

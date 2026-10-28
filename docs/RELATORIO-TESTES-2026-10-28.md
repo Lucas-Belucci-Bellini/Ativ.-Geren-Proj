@@ -1,92 +1,82 @@
-# Relatório de testes e auditoria — Cards 4 e 5
+# Relatório de implementação e testes — Cards 4 e 5
 
-- **Projeto:** Ativ.-Geren-Proj (clone/fork de trabalho)
 - **Data:** 28/10/2026
-- **Branch de trabalho:** `feat/lucas-cards-4-5-tests-report`
-- **Branch-base inspecionada:** `main`
-- **Escopo:** catálogo de músicas, busca por título/artista, validação de IDs, estado de compilação dos fontes e preparação de testes para os Cards 4 e 5.
-- **Responsável pela tarefa:** Lucas — busca e testes, com assistência de monitor de programação.
+- **Projeto:** Ativ.-Geren-Proj
+- **Branch:** `feat/lucas-cards-4-5-tests-report`
+- **Responsável pela funcionalidade:** Lucas — busca e testes
+- **Assistência:** monitor de programação
+- **Escopo desta etapa:** registrar decisão Java, implementar busca por título/artista e adicionar testes de regressão.
 
 ## Resumo executivo
 
-**Resultado: parcialmente verificado; a busca ainda não está integrada/compilável com a estrutura atual do projeto.**
+**Resultado: serviço de busca implementado e 12/12 testes isolados aprovados; integração ao menu e build completo continuam pendentes.**
 
-Foi possível validar oito comportamentos do catálogo com um teste de fumaça local, compilando uma cópia temporária dos fontes `Track.java` e `CatalogService.java` consultados no GitHub. Isso não equivale a um build completo do repositório. A tentativa de compilar `SearchService.java` junto com o `Track.java` atual falhou porque o serviço importa `spotifyclone.model.Track`, mas o modelo existente está no pacote padrão em `src/Track.java`.
+A decisão de usar Java para o aplicativo de terminal foi registrada em ADR-0001, conforme autorização do responsável. Foi adicionado `src/SearchService.java`, com busca por trecho de título ou artista, sem diferenciar maiúsculas/minúsculas e removendo espaços externos. Entradas nulas ou em branco retornam uma lista vazia. Foi adicionado `tests/SearchServiceTest.java` com verificações automatizadas sem dependências externas.
 
-O repositório não apresenta uma configuração Maven/Gradle visível no inventário consultado, e o workflow atual é um guard de documentação/integridade — não compila Java nem executa testes funcionais. A estrutura de pacotes/stack também permanece pendente na documentação de arquitetura. Por isso, este relatório não declara que a aplicação inteira está funcionando.
+## Arquivos alterados nesta etapa
 
-## Arquivos e funcionalidades inspecionados
+- `docs/architecture/decisions/ADR-0001-java-terminal.md` — registra a decisão de Java para o aplicativo de terminal.
+- `docs/architecture/decisions/README.md` — atualiza o estado das decisões de arquitetura e mantém frontend web/backend web/persistência fora do escopo aprovado.
+- `src/SearchService.java` — novo serviço de busca, usando o modelo `Track` e `CatalogService` no pacote padrão, consistente com os fontes existentes.
+- `tests/SearchServiceTest.java` — novo teste executável sem JUnit.
+- `docs/PLANO-TESTES-CARDS-4-5.md` — matriz atualizada com resultados e comando de execução.
+- `docs/RELATORIO-TESTES-2026-10-28.md` — este relatório atualizado.
 
-- `SearchService.java` — busca parcial por título ou artista, ignorando caixa e espaços externos; rejeita termo nulo/vazio por exceção e retorna lista imutável.
-- `src/Track.java` — modelo de faixa, validação de campos obrigatórios, duração formatada e igualdade baseada no ID.
-- `src/CatalogService.java` — catálogo inicial, listagem, busca por ID, busca por título/artista e operações de adição/remoção.
-- `src/Main.java` — ainda contém um exemplo de inicialização do IntelliJ; não foi encontrada integração de menu de busca neste arquivo.
-- `docs/PROJECT_RULES.md` e `docs/architecture/decisions/README.md` — a stack e a decisão de arquitetura permanecem pendentes.
+## Decisão de arquitetura
+
+A ADR-0001 registra Java puro para o aplicativo de terminal. A migração geral para pacotes nomeados e a adoção de Maven/Gradle/JUnit foram adiadas por serem mudanças transversais não necessárias para concluir a lógica de busca. Frontend web, backend web, banco de dados e contratos de integração permanecem pendentes, pois não foram aprovados como parte deste escopo.
 
 ## Testes executados
 
-Ambiente local disponível: OpenJDK/Javac 21.0.12. Maven não está instalado. O clone Git por rede não foi possível neste ambiente; para o teste de fumaça, os fontes relevantes foram copiados manualmente a partir do conteúdo retornado pela API do GitHub para um diretório temporário e compilados isoladamente.
+**Ambiente:** `javac 21.0.12.1`, em diretório temporário isolado. Os conteúdos dos arquivos envolvidos foram obtidos da branch e compilados em um harness temporário; não foi possível fazer clone Git completo neste ambiente.
 
-| # | Verificação | Resultado |
-|---:|---|---|
-| 1 | Compilar o modelo `Track` e `CatalogService` em conjunto com o teste de fumaça | PASSOU |
-| 2 | Catálogo inicial contém 8 faixas | PASSOU |
-| 3 | Listagem retorna 8 faixas | PASSOU |
-| 4 | Todas as faixas listadas têm ID, título, artista e duração válida | PASSOU |
-| 5 | Busca parcial por título (`bohemian`) | PASSOU |
-| 6 | Busca parcial por artista (`queen`, sem diferenciar caixa no ambiente atual) | PASSOU |
-| 7 | ID existente (`t-001`) é encontrado | PASSOU |
-| 8 | ID inexistente retorna `Optional.empty()` | PASSOU |
-| 9 | Duração de 354 segundos é formatada como `05:54` | PASSOU |
-| 10 | Compilar `SearchService.java` com o modelo atual | **FALHOU** — pacote `spotifyclone.model` não existe na árvore inspecionada |
+Comando usado no harness:
 
-**Resultado do teste de fumaça do catálogo:** 8 verificações passaram.  
-**Resultado da busca independente:** não passou na compilação de integração; os cenários funcionais de `SearchService` ainda não podem ser considerados aprovados.
+```bash
+javac -d out src/Track.java src/CatalogService.java src/SearchService.java tests/SearchServiceTest.java
+java -cp out SearchServiceTest
+```
 
-## Problemas e riscos
+| Verificação | Resultado |
+|---|---|
+| Compilação do modelo, catálogo, serviço de busca e teste isolado | PASSOU |
+| Catálogo inicial com 8 faixas | PASSOU |
+| Busca parcial por título | PASSOU |
+| Busca por artista ignorando maiúsculas/minúsculas | PASSOU |
+| Remoção de espaços externos | PASSOU |
+| Busca parcial case-insensitive | PASSOU |
+| Busca por título completo | PASSOU |
+| Nenhuma correspondência retorna lista vazia | PASSOU |
+| Termo vazio retorna lista vazia | PASSOU |
+| Termo só com espaços retorna lista vazia | PASSOU |
+| Termo nulo retorna lista vazia | PASSOU |
+| Construtor rejeita catálogo nulo | PASSOU |
 
-### Confirmado — incompatibilidade de pacote na busca
+**Resultado observado: 12/12 testes passaram.** O teste de busca está persistido em `tests/SearchServiceTest.java` para repetição no ambiente do projeto.
 
-`SearchService.java` declara `package spotifyclone.search` e importa `spotifyclone.model.Track`. O modelo do projeto está em `src/Track.java` sem declaração de pacote. O comando de compilação isolada falhou com erros de pacote/classe não encontrado.
+## Pendências e limitações
 
-**Impacto:** a busca não pode ser compilada junto com o modelo atualmente presente sem uma decisão consistente de pacotes/estrutura de fontes.
+1. **Integração com menu:** `src/Main.java` ainda é um exemplo de inicialização e não chama o serviço. A responsabilidade de menu/integracão foi atribuída a outro integrante do grupo; não alterei esse arquivo para evitar conflito com o trabalho dele. A integração deverá exibir ID, título, artista e duração.
+2. **Build completo:** não foi compilada toda a aplicação. Os testes cobrem apenas `Track`, `CatalogService`, `SearchService` e `SearchServiceTest`.
+3. **CI:** o workflow de guard existente valida documentação/governança, não executa estes testes Java. Não declarar o CI como teste funcional aprovado.
+4. **Plano de execução:** não há ainda configuração de Maven/Gradle/JUnit; o teste é uma classe Java com `main`.
+5. **Validação de menu:** ainda é necessário verificar que uma entrada inválida não encerra o processo e que uma busca válida pode ser feita em seguida.
 
-### Confirmado por inspeção — menu ainda não integrado
+## Próximos passos
 
-`src/Main.java` contém apenas um exemplo “Hello and welcome” e não chama `SearchService` nem oferece a busca no menu do terminal.
+1. Coordenar com o responsável pelo menu para integrar `SearchService` sem sobrescrever trabalho alheio.
+2. Executar os testes no clone real do projeto com o comando documentado no plano.
+3. Compilar e testar o fluxo de aplicação integrado quando o menu estiver pronto.
+4. Atualizar este relatório com os resultados de integração e, se necessário, corrigir regressões.
+5. Manter as alterações nesta branch; `main` permanece intacta e nenhum merge foi realizado.
 
-**Impacto:** mesmo corrigindo a compilação do serviço, o usuário ainda não consegue acessar a busca pelo fluxo principal da aplicação.
+## Referências
 
-### Risco — falta de build e testes automatizados persistentes
-
-Não foi localizada uma configuração de build Java nem uma suíte automatizada na estrutura inspecionada. O teste de fumaça foi temporário e não está registrado como teste do repositório.
-
-**Impacto:** não há um comando padrão reproduzível para validar o projeto completo ou executar regressões no CI.
-
-### Risco — escopo de arquitetura pendente
-
-As regras do próprio repositório solicitam decisão formal de stack e estrutura antes da implementação principal. O diretório de ADRs consultado contém apenas o README de orientação, sem decisão de stack aprovada.
-
-## Plano de validação para os Cards 4 e 5
-
-A matriz detalhada está em [`docs/PLANO-TESTES-CARDS-4-5.md`](./PLANO-TESTES-CARDS-4-5.md). Os casos de busca que dependem do `SearchService` ficam **pendentes** até resolver a estrutura de pacotes e a integração com o menu.
-
-## Próximos passos recomendados
-
-1. Registrar/aprovar a estrutura de pacotes e o build Java conforme as regras do projeto.
-2. Ajustar `SearchService` para usar o mesmo modelo `Track` e a estrutura de fontes definida — sem manter imports incompatíveis.
-3. Integrar a busca ao menu do terminal, mostrando ID, título, artista e duração; capturar entradas inválidas para que o menu continue funcionando.
-4. Adicionar os casos da matriz como testes automatizados reproduzíveis.
-5. Executar compilação e todos os testes no projeto completo e, se possível, adicionar o comando real ao GitHub Actions.
-6. Atualizar este relatório com os comandos e resultados finais reais.
-
-## Limitações
-
-- Não foi possível clonar o repositório por indisponibilidade de resolução de `github.com` no ambiente de execução.
-- Não foi executado build completo de todos os arquivos.
-- Os oito testes aprovados validam apenas uma cópia temporária dos fontes de modelo/catálogo, não a integração completa do projeto.
-- Os testes de busca por título/artista usando `SearchService`, a integração no menu e os fluxos de interface ainda não foram aprovados.
-- Não foi alterada a branch `main`; este relatório foi preparado para a branch de trabalho.
+- [Branch de trabalho](https://github.com/Lucas-Belucci-Bellini/Ativ.-Geren-Proj/tree/feat/lucas-cards-4-5-tests-report)
+- [ADR-0001 — Java para terminal](./architecture/decisions/ADR-0001-java-terminal.md)
+- [Plano de testes dos Cards 4 e 5](./PLANO-TESTES-CARDS-4-5.md)
+- [SearchService.java](../src/SearchService.java)
+- [SearchServiceTest.java](../tests/SearchServiceTest.java)
 
 ---
-Relatório preparado com assistência de monitor de programação, registrando evidências e limitações sem afirmar resultados não verificados.
+Relatório preparado com assistência de monitor de programação, sem declarar como aprovado o que ainda não foi integrado ou testado.

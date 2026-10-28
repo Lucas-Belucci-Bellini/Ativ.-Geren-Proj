@@ -1,6 +1,18 @@
 import java.io.File;
 import java.util.Objects;
 
+/**
+ * Modelo imutável de uma faixa musical.
+ * Record gera automaticamente acessores, construtor, equals/hashCode e outros métodos;
+ * equals/hashCode são redefinidos abaixo para considerar a identidade pelo ID.
+ *
+ * @param id identificador único da faixa
+ * @param title título da música
+ * @param artist artista ou intérprete
+ * @param durationSeconds duração total em segundos
+ * @param coverFile caminho do arquivo de capa (pode ser null quando não houver capa)
+ * @param audioFile caminho do arquivo de áudio
+ */
 public record Track(
         String id,
         String title,
@@ -10,6 +22,7 @@ public record Track(
         File audioFile
 ) {
 
+    /** Valida os campos obrigatórios no momento da criação do objeto. */
     public Track {
         Objects.requireNonNull(id, "id");
         Objects.requireNonNull(title, "title");
@@ -20,20 +33,24 @@ public record Track(
         }
     }
 
+    /** Converte segundos para o formato de exibição minutos:segundos (por exemplo, 03:14). */
     public String formattedDuration() {
         return "%02d:%02d".formatted(durationSeconds / 60, durationSeconds % 60);
     }
 
+    /** Duas faixas são consideradas iguais quando têm o mesmo ID. */
     @Override
     public boolean equals(Object o) {
         return o instanceof Track t && id.equals(t.id);
     }
 
+    /** Mantém hashCode coerente com equals, usando o ID como identidade. */
     @Override
     public int hashCode() {
         return id.hashCode();
     }
 
+    /** Texto compacto para logs e depuração, sem imprimir caminhos completos de arquivos. */
     @Override
     public String toString() {
         return "Track{id=%s, title=%s, artist=%s, duration=%s}"

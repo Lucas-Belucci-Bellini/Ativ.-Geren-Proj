@@ -81,4 +81,3 @@ O workflow [Repository Guard](https://github.com/Lucas-Belucci-Bellini/Ativ.-Ger
 - [SearchServiceTest.java](../tests/SearchServiceTest.java)
 
 ---
-Relatório preparado com assistência de monitor de programação, sem declarar como aprovado o que ainda não foi integrado ou testado.

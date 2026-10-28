@@ -16,7 +16,7 @@ class SearchServiceTest {
 
     @Test
     void pesquisaTituloIgnorandoMaiusculasEEspacos() {
-        assertEquals("1", service.search("  BOHEMIAN ", tracks).getFirst().id());
+        assertEquals("1", service.search("  BOHEMIAN ", tracks).get(0).id());
     }
 
     @Test

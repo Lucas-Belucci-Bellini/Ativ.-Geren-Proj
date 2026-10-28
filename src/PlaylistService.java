@@ -15,8 +15,9 @@ public class PlaylistService {
             throw new IllegalArgumentException("O nome da playlist não pode ser vazio.");
         }
 
-        Playlist nova = new Playlist(proximoId++, nome.strip());
-        playlists.put(nova.getId(), nova);
+        int id = proximoId++;
+        Playlist nova = new Playlist(String.valueOf(id), nome.strip());
+        Playlist put = playlists.put(id, nova);
         return nova;
     }
 

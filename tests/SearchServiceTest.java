@@ -21,7 +21,7 @@ class SearchServiceTest {
 
     @Test
     void pesquisaArtista() {
-        assertEquals("2", service.search("lennon", tracks).getFirst().id());
+        assertEquals("2", service.search("lennon", tracks).get(0).id());
     }
 
     @Test

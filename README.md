@@ -49,3 +49,12 @@ java -cp target/classes Main
 - [Catálogo de estudos de JavaScript](https://github.com/Lucas-Belucci-Bellini/Projetos-Futuros/tree/estudos/catalogo-programacao/estudos/conteudos/01-javascript)
 - [Catálogo de estudos de HTML](https://github.com/Lucas-Belucci-Bellini/Projetos-Futuros/tree/estudos/catalogo-programacao/estudos/conteudos/03-html)
 - [Catálogo de estudos de CSS](https://github.com/Lucas-Belucci-Bellini/Projetos-Futuros/tree/estudos/catalogo-programacao/estudos/conteudos/04-css)
+
+## Integrações musicais (em desenvolvimento)
+
+- **SoundCloud:** `SoundCloudSearchService` pesquisa faixas na API oficial e retorna título, usuário/artista, URL da faixa, capa e duração. Configure `SOUNDCLOUD_ACCESS_TOKEN` no ambiente; nunca grave o token no código ou no Git.
+- **Letras e conferência:** `LyricsVerificationService` consulta LRCLIB e compara título, artista e duração. A resposta informa se a correspondência é forte ou aproximada; não se deve tratar resultados aproximados como confirmação.
+- **Créditos independentes:** `MusicMetadataVerificationService` consulta MusicBrainz para comparar título e créditos de artista.
+- **Configuração:** veja `.env.example` para o nome da variável de ambiente. O exemplo não contém credenciais reais.
+
+As APIs dependem de conexão, disponibilidade, limites e termos de cada provedor. Capas e URLs são metadados de origem; o projeto não deve baixar/republicar imagens nem contornar controles de acesso. O uso da API não garante que toda faixa, letra ou capa esteja disponível. O verificador auxilia a conferência, mas não certifica direitos autorais.

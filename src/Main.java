@@ -133,9 +133,9 @@ public class Main {
             if (answer.equalsIgnoreCase("s") || answer.equalsIgnoreCase("sim")) {
                 String text = lyrics.plainLyrics() != null
                         ? lyrics.plainLyrics() : lyrics.syncedLyrics();
-                System.out.println("\\n--- Letra fornecida por " + lyrics.source() + " ---");
+                System.out.println("\n--- Letra fornecida por " + lyrics.source() + " ---");
                 System.out.println(text);
-                System.out.println("\\nFonte: " + lyrics.source()
+                System.out.println("\nFonte: " + lyrics.source()
                         + " (consulte os termos e a disponibilidade do provedor).");
             }
         } else {

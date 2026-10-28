@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { resilientFetch } from "@/lib/resilient-fetch";
 
 export const runtime = "nodejs";
 const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR").replace(/[^a-z0-9]+/g, " ").trim();
@@ -22,8 +23,8 @@ export async function GET(request: NextRequest) {
   musicUrl.searchParams.set("limit", "5");
 
   const [lyricsResponse, musicResponse] = await Promise.allSettled([
-    fetch(lyricsUrl, { headers, signal: AbortSignal.timeout(10000), cache: "no-store" }),
-    fetch(musicUrl, { headers, signal: AbortSignal.timeout(10000), cache: "no-store" }),
+    resilientFetch(lyricsUrl, { headers }, { timeoutMs: 10_000, cacheTtlMs: 30_000 }),
+    resilientFetch(musicUrl, { headers }, { timeoutMs: 10_000, cacheTtlMs: 30_000 }),
   ]);
   let lyric: Record<string, unknown> | null = null;
   let recordings: Array<Record<string, unknown>> = [];

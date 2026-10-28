@@ -24,7 +24,7 @@ export default function Home() {
   async function search(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!query.trim()) return;
-    setSearching(true); setError(""); setSelected(null); setVerification(null); setShowLyrics(false);
+    setSearching(true); setError(""); setTracks([]); setSelected(null); setVerification(null); setShowLyrics(false);
     try {
       const response = await fetch(`/api/search?q=${encodeURIComponent(query.trim())}`);
       const data = await response.json();
@@ -62,14 +62,14 @@ export default function Home() {
         <header className="topbar"><span className="eyebrow"><span className="live-dot" /> SEU UNIVERSO MUSICAL</span><span className="topbar-note">Um lugar para descobrir sons</span></header>
         <section className="hero">
           <div className="hero-copy"><div className="pill"><span>✳</span> PESQUISA INTELIGENTE</div><h1>Uma música.<br /><em>Mil descobertas.</em></h1><p>Busque faixas, encontre artistas e confira informações musicais em um só lugar.</p>
-            <form className="search-form" onSubmit={search}><span className="search-symbol">⌕</span><input aria-label="Pesquisar música ou artista" value={query} onChange={e => setQuery(e.target.value)} placeholder="Qual som você está procurando?" /><button type="submit" disabled={searching}>{searching ? <span className="spinner" /> : "Buscar"} <span aria-hidden="true">↗</span></button></form>
+            <form className="search-form" onSubmit={search}><span className="search-symbol">⌕</span><input aria-label="Pesquisar música ou artista" maxLength={120} value={query} onChange={e => setQuery(e.target.value)} placeholder="Qual som você está procurando?" /><button type="submit" disabled={searching || !query.trim()}>{searching ? <span className="spinner" /> : "Buscar"} <span aria-hidden="true">↗</span></button></form>
             <div className="search-hint"><span>↳</span> Experimente um título, artista ou trecho do nome</div>
           </div>
           <div className="hero-art" aria-hidden="true"><div className="art-orbit orbit-one" /><div className="art-orbit orbit-two" /><div className="art-disc"><div className="disc-ring"><div className="disc-center"><span>so</span></div></div></div><div className="floating-note note-one">♫</div><div className="floating-note note-two">♪</div><div className="art-caption">SOM EM MOVIMENTO <span>✳</span></div></div>
         </section>
 
         {error && <div className="notice" role="status"><span>ⓘ</span>{error}</div>}
-        <section className="results-section" id="results">
+        <section className="results-section" id="results" aria-busy={searching}>
           <div className="section-heading"><div><span className="section-kicker">EXPLORE O CATÁLOGO</span><h2>{tracks.length ? "Resultados da busca" : "Comece por uma descoberta"}</h2></div>{tracks.length > 0 && <span className="result-count">{tracks.length} FAIXAS</span>}</div>
           {tracks.length === 0 ? <div className="empty-state"><div className="empty-icon"><span>♫</span><span>✳</span></div><h3>Seu próximo som está por aqui.</h3><p>Pesquise acima para ver faixas do SoundCloud, suas capas e os dados de cada artista.</p><div className="suggestions"><button onClick={() => setQuery("indie pop")}>indie pop <span>↗</span></button><button onClick={() => setQuery("lofi beats")}>lofi beats <span>↗</span></button><button onClick={() => setQuery("rock brasileiro")}>rock brasileiro <span>↗</span></button></div></div> :
             <div className="track-grid">{tracks.map((track, index) => <article className={selected?.id === track.id ? "track-card selected" : "track-card"} key={track.id}><button className="cover-button" onClick={() => verify(track)} aria-label={`Verificar ${track.title}`}>{track.artworkUrl ? <img src={track.artworkUrl} alt={`Capa de ${track.title}`} /> : <span className="cover-placeholder">♫</span>}<span className="play-overlay">⌕</span><span className="track-index">{String(index + 1).padStart(2, "0")}</span></button><button className="track-title" onClick={() => verify(track)}>{track.title}</button><p className="track-artist">{track.artist}</p><div className="track-meta"><span>{duration(track.durationMillis)}</span><a href={track.permalinkUrl ?? "#"} target="_blank" rel="noreferrer">Abrir faixa ↗</a></div></article>)}</div>}

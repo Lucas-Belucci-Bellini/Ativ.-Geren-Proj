@@ -5,7 +5,8 @@ Projeto acadêmico de catálogo musical para a matéria de Gerenciamento de Proj
 ## O que existe no código
 
 - **Catálogo:** lista inicial de músicas e operações para consultar, adicionar e remover faixas.
-- **Pesquisa:** procura músicas pelo título ou artista, sem diferenciar maiúsculas de minúsculas.
+- **Pesquisa local:** procura músicas pelo título ou artista, sem diferenciar maiúsculas de minúsculas.
+- **Descoberta externa:** menu de terminal para buscar faixas no SoundCloud, visualizar URLs de capa/faixa e verificar título, artista e duração.
 - **Favoritos:** mantém faixas favoritas e impede duplicatas.
 - **Playlists:** cria playlists, lista e busca por ID e permite adicionar/remover IDs de faixas.
 - **Testes:** testes automatizados com JUnit 5 para as regras principais.
@@ -25,11 +26,11 @@ Na raiz do repositório, execute:
 mvn clean verify
 ```
 
-O comando compila os fontes e executa os testes automatizados. Para executar o exemplo de entrada:
+O comando compila os fontes e executa os testes automatizados. Para iniciar o menu de terminal (busca externa requer token do SoundCloud):
 
 ```bash
 mvn -q -DskipTests package
-java -cp target/classes Main
+java -cp 'target/classes;target/dependency/*' Main
 ```
 
 ## Organização atual
@@ -55,6 +56,7 @@ java -cp target/classes Main
 - **SoundCloud:** `SoundCloudSearchService` pesquisa faixas na API oficial e retorna título, usuário/artista, URL da faixa, capa e duração. Configure `SOUNDCLOUD_ACCESS_TOKEN` no ambiente; nunca grave o token no código ou no Git.
 - **Letras e conferência:** `LyricsVerificationService` consulta LRCLIB e compara título, artista e duração. A resposta informa se a correspondência é forte ou aproximada; não se deve tratar resultados aproximados como confirmação.
 - **Créditos independentes:** `MusicMetadataVerificationService` consulta MusicBrainz para comparar título e créditos de artista.
+- **Fachada unificada:** `MusicDiscoveryService` combina busca e verificação para a interface de terminal e futuras interfaces.
 - **Configuração:** veja `.env.example` para o nome da variável de ambiente. O exemplo não contém credenciais reais.
 
 As APIs dependem de conexão, disponibilidade, limites e termos de cada provedor. Capas e URLs são metadados de origem; o projeto não deve baixar/republicar imagens nem contornar controles de acesso. O uso da API não garante que toda faixa, letra ou capa esteja disponível. O verificador auxilia a conferência, mas não certifica direitos autorais.

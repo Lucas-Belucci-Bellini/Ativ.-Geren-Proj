@@ -10,10 +10,7 @@ public class PlaylistService {
 
      private int proximoId = 1;
 
-    /**
-     * Cria a playlist a partir do nome digitado.
-     * Nome nulo, vazio ou formado só por espaços é recusado antes de gravar.
-     */
+    
     public Playlist criar(String nome){
 
         if (nome == null || nome.isBlank()) {
@@ -31,9 +28,6 @@ public class PlaylistService {
         return new ArrayList<>(playlists.values());
     }
 
-    /**
-     * Listagem geral organizada com ID, nome e quantidade de faixas.
-     */
     public String formatarListagem() {
         List<Playlist> todas = listar();
         if (todas.isEmpty()) {
@@ -57,10 +51,6 @@ public class PlaylistService {
         return Optional.ofNullable(playlists.get(id));
     }
 
-    /**
-     * Consulta a playlist pelo ID e, para cada faixa, busca no catálogo
-     * o título, o artista e a duração. Uma faixa ausente não interrompe as outras.
-     */
     public String formatarConsulta(int id, CatalogService catalogo) {
         Objects.requireNonNull(catalogo, "catalogo");
 

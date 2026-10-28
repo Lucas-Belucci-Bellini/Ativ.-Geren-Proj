@@ -1,4 +1,3 @@
-import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 
@@ -14,18 +13,6 @@ public class AreaDePlaylists {
         this.entrada = entrada;
     }
 
-    public static void main(String[] args) {
-        System.out.println("=== Área de playlists ===");
-        try {
-            new AreaDePlaylists(new PlaylistService(), new CatalogService(), new Scanner(System.in)).abrir();
-        } catch (NoSuchElementException e) {
-            // nextLine() lança esta exceção quando a entrada do terminal acaba.
-            System.out.println("\nEntrada encerrada.");
-        }
-        System.out.println("Até logo!");
-    }
-
- 
     public void abrir() {
         while (true) {
             System.out.println("""
@@ -48,7 +35,7 @@ public class AreaDePlaylists {
         }
     }
 
-  
+
     private void criar() {
         try {
             Playlist nova = playlists.criar(lerLinha("Nome da playlist: "));

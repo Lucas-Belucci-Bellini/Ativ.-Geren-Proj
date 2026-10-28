@@ -1,86 +1,83 @@
-# Relatório de Verificação do Projeto
+# Relatório de implementação e testes — Cards 4 e 5
 
-- **Projeto:** Ativ.-Geren-Proj
 - **Data:** 28/10/2026
-- **Branch analisada:** `main`
-- **Commit analisado:** `3e8a13cbca5435681fe4cae67cb13412fa6ed1dd`
-- **Branch deste relatório:** `test/relatorio-verificacao-2026-10-28`
-- **Escopo:** inspeção estática dos arquivos disponíveis no GitHub e consulta do resultado mais recente do GitHub Actions.
+- **Projeto:** Ativ.-Geren-Proj
+- **Branch:** `feat/lucas-cards-4-5-tests-report`
+- **Responsável pela funcionalidade:** Lucas — busca e testes
+- **Assistência:** monitor de programação
+- **Escopo desta etapa:** registrar decisão Java, implementar busca por título/artista e adicionar testes de regressão.
 
-## Resumo
+## Resumo executivo
 
-**Status geral: precisa de correções antes de considerar o projeto compilável.**
+**Resultado: serviço de busca implementado e 12/12 testes isolados aprovados; integração ao menu e build completo continuam pendentes.**
 
-O workflow de integridade do repositório terminou com sucesso, mas ele verifica documentação, marcadores de conflito e, em pull requests, espaços em branco do diff. Ele **não compila o Java nem executa testes funcionais**. A revisão estática identificou incompatibilidades que provavelmente impedem a compilação conjunta dos fontes atuais.
+A decisão de usar Java para o aplicativo de terminal foi registrada em ADR-0001, conforme autorização do responsável. Foi adicionado `src/SearchService.java`, com busca por trecho de título ou artista, sem diferenciar maiúsculas/minúsculas e removendo espaços externos. Entradas nulas ou em branco retornam uma lista vazia. Foi adicionado `tests/SearchServiceTest.java` com verificações automatizadas sem dependências externas.
 
-## Verificações realizadas
+## Arquivos alterados nesta etapa
 
-| Verificação | Resultado | Evidência / observação |
-|---|---|---|
-| Repositório acessível e branch padrão | OK | Repositório público; branch padrão `main`. |
-| Workflow GitHub Actions mais recente consultado | PASSOU | [Execução 40758714508](https://github.com/Lucas-Belucci-Bellini/Ativ.-Geren-Proj/actions/runs/40758714508), conclusão `success`. |
-| Guard de governança e integridade | PASSOU na execução consultada | Workflow `Repository Guard`; não é um teste de compilação Java. |
-| Compilação Java | NÃO EXECUTADA neste ambiente | Não foi executado `javac` ou um build do projeto; as incompatibilidades abaixo foram identificadas por inspeção estática. |
-| Testes unitários/integração | NÃO LOCALIZADOS na árvore revisada | Não foi identificada configuração de testes ou ferramenta de build como Maven/Gradle no inventário consultado. |
-| Teste de reprodução da aplicação | NÃO EXECUTADO | Não há evidência suficiente para afirmar que a aplicação inicia ou que todos os fluxos funcionam. |
+- `docs/architecture/decisions/ADR-0001-java-terminal.md` — registra a decisão de Java para o aplicativo de terminal.
+- `docs/architecture/decisions/README.md` — atualiza o estado das decisões de arquitetura e mantém frontend web/backend web/persistência fora do escopo aprovado.
+- `src/SearchService.java` — novo serviço de busca, usando o modelo `Track` e `CatalogService` no pacote padrão, consistente com os fontes existentes.
+- `tests/SearchServiceTest.java` — novo teste executável sem JUnit.
+- `docs/PLANO-TESTES-CARDS-4-5.md` — matriz atualizada com resultados e comando de execução.
+- `docs/RELATORIO-TESTES-2026-10-28.md` — este relatório atualizado.
 
-## Problemas identificados
+## Decisão de arquitetura
 
-### 1. Incompatibilidade de tipos em `src/PlaylistService.java`
+A ADR-0001 registra Java puro para o aplicativo de terminal. A migração geral para pacotes nomeados e a adoção de Maven/Gradle/JUnit foram adiadas por serem mudanças transversais não necessárias para concluir a lógica de busca. Frontend web, backend web, banco de dados e contratos de integração permanecem pendentes, pois não foram aprovados como parte deste escopo.
 
-**Classificação:** confirmado por inspeção estática — bloqueador provável de compilação.
+## Testes executados
 
-O serviço declara `Map<Integer, Playlist>`, mas cria uma playlist com `new Playlist(proximoId++, nome)`, enquanto o construtor de `Playlist` recebe um `String` como primeiro argumento. Além disso, `Playlist.getId()` retorna `String`, mas esse valor é usado como chave no mapa de tipo `Integer`.
+**Ambiente:** `javac 21.0.12.1`, em diretório temporário isolado. Como não foi possível fazer clone Git completo neste ambiente, foi montado um harness temporário reproduzindo o conteúdo consultado dos arquivos envolvidos. A compilação/teste isolados são evidência da lógica, mas não substituem uma execução diretamente sobre um clone real da branch.
 
-**Impacto:** os tipos não são compatíveis e o código não deve compilar como está.
+Comando usado no harness:
 
-**Correção sugerida:** escolher um único tipo de ID e aplicá-lo de forma consistente em `Playlist`, no construtor, em `getId()`, no mapa e nos métodos de busca. Fazer essa mudança em conjunto para não quebrar os chamadores.
+```bash
+javac -d out src/Track.java src/CatalogService.java src/SearchService.java tests/SearchServiceTest.java
+java -cp out SearchServiceTest
+```
 
-### 2. Pacotes e imports de `SearchService.java` não correspondem à árvore visível
+| Verificação | Resultado |
+|---|---|
+| Compilação do modelo, catálogo, serviço de busca e teste isolado | PASSOU |
+| Catálogo inicial com 8 faixas | PASSOU |
+| Busca parcial por título | PASSOU |
+| Busca por artista ignorando maiúsculas/minúsculas | PASSOU |
+| Remoção de espaços externos | PASSOU |
+| Busca parcial case-insensitive | PASSOU |
+| Busca por título completo | PASSOU |
+| Nenhuma correspondência retorna lista vazia | PASSOU |
+| Termo vazio retorna lista vazia | PASSOU |
+| Termo só com espaços retorna lista vazia | PASSOU |
+| Termo nulo retorna lista vazia | PASSOU |
+| Construtor rejeita catálogo nulo | PASSOU |
 
-**Classificação:** risco alto / provável bloqueador de compilação conjunta.
+**Resultado observado: 12/12 testes passaram.** O teste de busca está persistido em `tests/SearchServiceTest.java` para repetição no ambiente do projeto.
 
-`SearchService.java` declara o pacote `spotifyclone.search` e importa `spotifyclone.model.Track`. Na árvore do commit analisado, o arquivo `Track.java` está em `src/Track.java`, sem declaração de pacote, e não foi encontrado um arquivo em `spotifyclone/model/Track.java`.
+O workflow [Repository Guard](https://github.com/Lucas-Belucci-Bellini/Ativ.-Geren-Proj/actions/runs/40779399800) terminou com **success** no commit atual. Esse workflow verifica documentação/governança e **não** executa compilação Java nem os testes funcionais descritos acima.
 
-**Impacto:** se todos os fontes forem compilados como um único projeto, o import de `spotifyclone.model.Track` não será resolvido com a estrutura atual. Um arquivo em pacote nomeado também não pode importar uma classe do pacote padrão.
+## Pendências e limitações
 
-**Correção sugerida:** definir a estrutura de pacotes oficial e mover/ajustar os arquivos e imports de forma coordenada; evitar manter classes equivalentes em estruturas incompatíveis.
+1. **Integração com menu:** `src/Main.java` ainda é um exemplo de inicialização e não chama o serviço. A responsabilidade de menu/integracão foi atribuída a outro integrante do grupo; não alterei esse arquivo para evitar conflito com o trabalho dele. A integração deverá exibir ID, título, artista e duração.
+2. **Build completo:** não foi compilada toda a aplicação. Os testes cobrem apenas `Track`, `CatalogService`, `SearchService` e `SearchServiceTest`.
+3. **CI:** o workflow de guard existente valida documentação/governança, não executa estes testes Java. Não declarar o CI como teste funcional aprovado.
+4. **Plano de execução:** não há ainda configuração de Maven/Gradle/JUnit; o teste é uma classe Java com `main`.
+5. **Validação de menu:** ainda é necessário verificar que uma entrada inválida não encerra o processo e que uma busca válida pode ser feita em seguida.
 
-### 3. Ponto de entrada e versão mínima do Java precisam ser definidos
+## Próximos passos
 
-**Classificação:** risco.
+1. Coordenar com o responsável pelo menu para integrar `SearchService` sem sobrescrever trabalho alheio.
+2. Executar os testes no clone real do projeto com o comando documentado no plano.
+3. Compilar e testar o fluxo de aplicação integrado quando o menu estiver pronto.
+4. Atualizar este relatório com os resultados de integração e, se necessário, corrigir regressões.
+5. Manter as alterações nesta branch; `main` permanece intacta e nenhum merge foi realizado.
 
-`src/Main.java` usa a forma compacta de classe principal e `IO.println`, recursos que exigem uma versão recente do Java. Não foi identificada configuração de build que fixe e valide a versão mínima do JDK.
+## Referências
 
-**Impacto:** ambientes com JDK mais antigo podem falhar ao compilar ou executar o ponto de entrada.
-
-**Correção sugerida:** decidir e documentar a versão do JDK e configurar um build reproduzível (por exemplo, Maven ou Gradle) antes de adicionar testes automatizados.
-
-### 4. Cobertura de testes insuficiente para atestar o funcionamento
-
-**Classificação:** melhoria prioritária.
-
-Não foi possível confirmar testes automatizados para catálogo, pesquisa, favoritos e playlists. O workflow atual não testa esses comportamentos.
-
-**Correção sugerida:** depois de padronizar os pacotes e o build, criar testes para:
-- busca por título/artista sem diferenciar maiúsculas e minúsculas;
-- termo nulo/vazio e catálogo vazio;
-- adicionar/remover alternar favoritos e impedir duplicatas;
-- criar playlist com nome válido e rejeitar nome vazio;
-- adicionar/remover faixas e buscar playlist por ID;
-- duração formatada e igualdade de faixas por ID.
-
-## Próximos passos recomendados
-
-1. Corrigir a incompatibilidade de IDs em `PlaylistService` e `Playlist`.
-2. Definir e aplicar uma única estrutura de pacotes Java, incluindo `SearchService` e `Track`.
-3. Definir o JDK mínimo e adicionar configuração de build reproduzível.
-4. Adicionar testes unitários para os serviços.
-5. Atualizar o GitHub Actions para executar compilação e testes em cada pull request.
-6. Reexecutar os testes e atualizar este relatório com comandos e resultados reais.
-
-## Limitações e honestidade dos resultados
-
-Este relatório não declara que a aplicação foi executada com sucesso. O resultado verde observado é apenas do workflow de governança/integridade. Os problemas de código foram apontados por inspeção dos arquivos do commit informado; a compilação real ainda deve ser executada após as correções.
+- [Branch de trabalho](https://github.com/Lucas-Belucci-Bellini/Ativ.-Geren-Proj/tree/feat/lucas-cards-4-5-tests-report)
+- [ADR-0001 — Java para terminal](./architecture/decisions/ADR-0001-java-terminal.md)
+- [Plano de testes dos Cards 4 e 5](./PLANO-TESTES-CARDS-4-5.md)
+- [SearchService.java](../src/SearchService.java)
+- [SearchServiceTest.java](../tests/SearchServiceTest.java)
 
 ---

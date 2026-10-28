@@ -63,6 +63,29 @@ MusicBrainz pede um User-Agent significativo e limita consultas a aproximadament
 - Erros de rede/5xx: preserve o catálogo local e ofereça tentar novamente.
 - Campos de capa, álbum, duração ou letras ausentes: trate-os como opcionais.
 
-## 5. O que ainda não está implementado
+## 5. Fachada unificada para a aplicação
+
+A classe `MusicDiscoveryService` reúne os provedores numa API única, para que a futura interface não precise conhecer os detalhes de cada cliente:
+
+```java
+var music = new MusicDiscoveryService();
+var tracks = music.search("Imagine John Lennon", 10);
+
+for (var track : tracks) {
+    System.out.println(track.title() + " — " + track.artist());
+    System.out.println("Capa: " + track.artworkUrl());
+    System.out.println("Faixa original: " + track.permalinkUrl());
+}
+
+// Após o usuário selecionar uma faixa:
+var verification = music.verify("Imagine", "John Lennon", 183);
+System.out.println(verification.lyrics().message());
+System.out.println("Metadados independentes: "
+        + verification.metadataMatches().size());
+```
+
+`TrackVerification` fornece os resultados de letras e os candidatos do MusicBrainz separadamente. Uma letra aproximada não deve ser apresentada como verificada; resultados de metadados são referências para comparação, não prova legal de autoria. A pesquisa e a verificação fazem chamadas de rede e podem falhar por autenticação, limites ou indisponibilidade.
+
+## 6. O que ainda não está implementado
 
 Estas classes criam a camada de integração, mas o projeto ainda precisa de uma interface de usuário para exibir resultados, capa, links e letras. Também não foi implementado player de áudio, login OAuth completo, cache persistente, busca unificada com múltiplos provedores ou fluxo de reprodução semelhante ao Spotify.

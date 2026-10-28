@@ -28,7 +28,7 @@ A ADR-0001 registra Java puro para o aplicativo de terminal. A migração geral 
 
 ## Testes executados
 
-**Ambiente:** `javac 21.0.12.1`, em diretório temporário isolado. Os conteúdos dos arquivos envolvidos foram obtidos da branch e compilados em um harness temporário; não foi possível fazer clone Git completo neste ambiente.
+**Ambiente:** `javac 21.0.12.1`, em diretório temporário isolado. Como não foi possível fazer clone Git completo neste ambiente, foi montado um harness temporário reproduzindo o conteúdo consultado dos arquivos envolvidos. A compilação/teste isolados são evidência da lógica, mas não substituem uma execução diretamente sobre um clone real da branch.
 
 Comando usado no harness:
 
@@ -53,6 +53,8 @@ java -cp out SearchServiceTest
 | Construtor rejeita catálogo nulo | PASSOU |
 
 **Resultado observado: 12/12 testes passaram.** O teste de busca está persistido em `tests/SearchServiceTest.java` para repetição no ambiente do projeto.
+
+O workflow [Repository Guard](https://github.com/Lucas-Belucci-Bellini/Ativ.-Geren-Proj/actions/runs/40779399800) terminou com **success** no commit atual. Esse workflow verifica documentação/governança e **não** executa compilação Java nem os testes funcionais descritos acima.
 
 ## Pendências e limitações
 

@@ -71,7 +71,7 @@ public class Main {
 
             var track = tracks.get(selected - 1);
             int durationSeconds = (int) Math.round(track.durationMillis() / 1000.0);
-            showVerification(music, track.title(), track.artist(), durationSeconds);
+            showVerification(scanner, music, track.title(), track.artist(), durationSeconds);
         } catch (IllegalStateException e) {
             System.out.println(e.getMessage());
             System.out.println("Consulte docs/INTEGRACOES-MUSICAIS.md para configurar o token.");
@@ -92,7 +92,7 @@ public class Main {
         int duration = readNumber(scanner);
 
         try {
-            showVerification(music, title, artist, duration);
+            showVerification(scanner, music, title, artist, duration);
         } catch (IllegalArgumentException e) {
             System.out.println("Confira os dados: " + e.getMessage());
         } catch (IOException e) {
@@ -103,7 +103,7 @@ public class Main {
         }
     }
 
-    private static void showVerification(MusicDiscoveryService music, String title,
+    private static void showVerification(Scanner scanner, MusicDiscoveryService music, String title,
                                          String artist, int durationSeconds)
             throws IOException, InterruptedException {
         var result = music.verify(title, artist, durationSeconds);
@@ -128,17 +128,15 @@ public class Main {
         System.out.println("Observação: correspondência técnica não comprova direitos autorais.");
 
         if (lyrics.found() && (lyrics.plainLyrics() != null || lyrics.syncedLyrics() != null)) {
-            try (Scanner scanner = new Scanner(System.in)) {
-                System.out.print("Deseja mostrar a letra retornada pela fonte? (s/n): ");
-                String answer = scanner.nextLine().strip();
-                if (answer.equalsIgnoreCase("s") || answer.equalsIgnoreCase("sim")) {
-                    String text = lyrics.plainLyrics() != null
-                            ? lyrics.plainLyrics() : lyrics.syncedLyrics();
-                    System.out.println("\\n--- Letra fornecida por " + lyrics.source() + " ---");
-                    System.out.println(text);
-                    System.out.println("\\nFonte: " + lyrics.source()
-                            + " (consulte os termos e a disponibilidade do provedor).");
-                }
+            System.out.print("Deseja mostrar a letra retornada pela fonte? (s/n): ");
+            String answer = scanner.nextLine().strip();
+            if (answer.equalsIgnoreCase("s") || answer.equalsIgnoreCase("sim")) {
+                String text = lyrics.plainLyrics() != null
+                        ? lyrics.plainLyrics() : lyrics.syncedLyrics();
+                System.out.println("\\n--- Letra fornecida por " + lyrics.source() + " ---");
+                System.out.println(text);
+                System.out.println("\\nFonte: " + lyrics.source()
+                        + " (consulte os termos e a disponibilidade do provedor).");
             }
         } else {
             System.out.println("A fonte não retornou texto de letra para esta correspondência.");

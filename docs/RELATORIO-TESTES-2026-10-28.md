@@ -1,87 +1,92 @@
-# Relatório de Verificação do Projeto
+# Relatório de testes e auditoria — Cards 4 e 5
 
-- **Projeto:** Ativ.-Geren-Proj
+- **Projeto:** Ativ.-Geren-Proj (clone/fork de trabalho)
 - **Data:** 28/10/2026
-- **Branch analisada:** `main`
-- **Commit analisado:** `3e8a13cbca5435681fe4cae67cb13412fa6ed1dd`
-- **Branch deste relatório:** `test/relatorio-verificacao-2026-10-28`
-- **Escopo:** inspeção estática dos arquivos disponíveis no GitHub e consulta do resultado mais recente do GitHub Actions.
+- **Branch de trabalho:** `feat/lucas-cards-4-5-tests-report`
+- **Branch-base inspecionada:** `main`
+- **Escopo:** catálogo de músicas, busca por título/artista, validação de IDs, estado de compilação dos fontes e preparação de testes para os Cards 4 e 5.
+- **Responsável pela tarefa:** Lucas — busca e testes, com assistência de monitor de programação.
 
-## Resumo
+## Resumo executivo
 
-**Status geral: precisa de correções antes de considerar o projeto compilável.**
+**Resultado: parcialmente verificado; a busca ainda não está integrada/compilável com a estrutura atual do projeto.**
 
-O workflow de integridade do repositório terminou com sucesso, mas ele verifica documentação, marcadores de conflito e, em pull requests, espaços em branco do diff. Ele **não compila o Java nem executa testes funcionais**. A revisão estática identificou incompatibilidades que provavelmente impedem a compilação conjunta dos fontes atuais.
+Foi possível validar oito comportamentos do catálogo com um teste de fumaça local, compilando uma cópia temporária dos fontes `Track.java` e `CatalogService.java` consultados no GitHub. Isso não equivale a um build completo do repositório. A tentativa de compilar `SearchService.java` junto com o `Track.java` atual falhou porque o serviço importa `spotifyclone.model.Track`, mas o modelo existente está no pacote padrão em `src/Track.java`.
 
-## Verificações realizadas
+O repositório não apresenta uma configuração Maven/Gradle visível no inventário consultado, e o workflow atual é um guard de documentação/integridade — não compila Java nem executa testes funcionais. A estrutura de pacotes/stack também permanece pendente na documentação de arquitetura. Por isso, este relatório não declara que a aplicação inteira está funcionando.
 
-| Verificação | Resultado | Evidência / observação |
-|---|---|---|
-| Repositório acessível e branch padrão | OK | Repositório público; branch padrão `main`. |
-| Workflow GitHub Actions mais recente consultado | PASSOU | [Execução 40758714508](https://github.com/Lucas-Belucci-Bellini/Ativ.-Geren-Proj/actions/runs/40758714508), conclusão `success`. |
-| Guard de governança e integridade | PASSOU na execução consultada | Workflow `Repository Guard`; não é um teste de compilação Java. |
-| Compilação Java | NÃO EXECUTADA neste ambiente | Não foi executado `javac` ou um build do projeto; as incompatibilidades abaixo foram identificadas por inspeção estática. |
-| Testes unitários/integração | NÃO LOCALIZADOS na árvore revisada | Não foi identificada configuração de testes ou ferramenta de build como Maven/Gradle no inventário consultado. |
-| Teste de reprodução da aplicação | NÃO EXECUTADO | Não há evidência suficiente para afirmar que a aplicação inicia ou que todos os fluxos funcionam. |
+## Arquivos e funcionalidades inspecionados
 
-## Problemas identificados
+- `SearchService.java` — busca parcial por título ou artista, ignorando caixa e espaços externos; rejeita termo nulo/vazio por exceção e retorna lista imutável.
+- `src/Track.java` — modelo de faixa, validação de campos obrigatórios, duração formatada e igualdade baseada no ID.
+- `src/CatalogService.java` — catálogo inicial, listagem, busca por ID, busca por título/artista e operações de adição/remoção.
+- `src/Main.java` — ainda contém um exemplo de inicialização do IntelliJ; não foi encontrada integração de menu de busca neste arquivo.
+- `docs/PROJECT_RULES.md` e `docs/architecture/decisions/README.md` — a stack e a decisão de arquitetura permanecem pendentes.
 
-### 1. Incompatibilidade de tipos em `src/PlaylistService.java`
+## Testes executados
 
-**Classificação:** confirmado por inspeção estática — bloqueador provável de compilação.
+Ambiente local disponível: OpenJDK/Javac 21.0.12. Maven não está instalado. O clone Git por rede não foi possível neste ambiente; para o teste de fumaça, os fontes relevantes foram copiados manualmente a partir do conteúdo retornado pela API do GitHub para um diretório temporário e compilados isoladamente.
 
-O serviço declara `Map<Integer, Playlist>`, mas cria uma playlist com `new Playlist(proximoId++, nome)`, enquanto o construtor de `Playlist` recebe um `String` como primeiro argumento. Além disso, `Playlist.getId()` retorna `String`, mas esse valor é usado como chave no mapa de tipo `Integer`.
+| # | Verificação | Resultado |
+|---:|---|---|
+| 1 | Compilar o modelo `Track` e `CatalogService` em conjunto com o teste de fumaça | PASSOU |
+| 2 | Catálogo inicial contém 8 faixas | PASSOU |
+| 3 | Listagem retorna 8 faixas | PASSOU |
+| 4 | Todas as faixas listadas têm ID, título, artista e duração válida | PASSOU |
+| 5 | Busca parcial por título (`bohemian`) | PASSOU |
+| 6 | Busca parcial por artista (`queen`, sem diferenciar caixa no ambiente atual) | PASSOU |
+| 7 | ID existente (`t-001`) é encontrado | PASSOU |
+| 8 | ID inexistente retorna `Optional.empty()` | PASSOU |
+| 9 | Duração de 354 segundos é formatada como `05:54` | PASSOU |
+| 10 | Compilar `SearchService.java` com o modelo atual | **FALHOU** — pacote `spotifyclone.model` não existe na árvore inspecionada |
 
-**Impacto:** os tipos não são compatíveis e o código não deve compilar como está.
+**Resultado do teste de fumaça do catálogo:** 8 verificações passaram.  
+**Resultado da busca independente:** não passou na compilação de integração; os cenários funcionais de `SearchService` ainda não podem ser considerados aprovados.
 
-**Correção sugerida:** escolher um único tipo de ID e aplicá-lo de forma consistente em `Playlist`, no construtor, em `getId()`, no mapa e nos métodos de busca. Fazer essa mudança em conjunto para não quebrar os chamadores.
+## Problemas e riscos
 
-### 2. Pacotes e imports de `SearchService.java` não correspondem à árvore visível
+### Confirmado — incompatibilidade de pacote na busca
 
-**Classificação:** risco alto / provável bloqueador de compilação conjunta.
+`SearchService.java` declara `package spotifyclone.search` e importa `spotifyclone.model.Track`. O modelo do projeto está em `src/Track.java` sem declaração de pacote. O comando de compilação isolada falhou com erros de pacote/classe não encontrado.
 
-`SearchService.java` declara o pacote `spotifyclone.search` e importa `spotifyclone.model.Track`. Na árvore do commit analisado, o arquivo `Track.java` está em `src/Track.java`, sem declaração de pacote, e não foi encontrado um arquivo em `spotifyclone/model/Track.java`.
+**Impacto:** a busca não pode ser compilada junto com o modelo atualmente presente sem uma decisão consistente de pacotes/estrutura de fontes.
 
-**Impacto:** se todos os fontes forem compilados como um único projeto, o import de `spotifyclone.model.Track` não será resolvido com a estrutura atual. Um arquivo em pacote nomeado também não pode importar uma classe do pacote padrão.
+### Confirmado por inspeção — menu ainda não integrado
 
-**Correção sugerida:** definir a estrutura de pacotes oficial e mover/ajustar os arquivos e imports de forma coordenada; evitar manter classes equivalentes em estruturas incompatíveis.
+`src/Main.java` contém apenas um exemplo “Hello and welcome” e não chama `SearchService` nem oferece a busca no menu do terminal.
 
-### 3. Ponto de entrada e versão mínima do Java precisam ser definidos
+**Impacto:** mesmo corrigindo a compilação do serviço, o usuário ainda não consegue acessar a busca pelo fluxo principal da aplicação.
 
-**Classificação:** risco.
+### Risco — falta de build e testes automatizados persistentes
 
-`src/Main.java` usa a forma compacta de classe principal e `IO.println`, recursos que exigem uma versão recente do Java. Não foi identificada configuração de build que fixe e valide a versão mínima do JDK.
+Não foi localizada uma configuração de build Java nem uma suíte automatizada na estrutura inspecionada. O teste de fumaça foi temporário e não está registrado como teste do repositório.
 
-**Impacto:** ambientes com JDK mais antigo podem falhar ao compilar ou executar o ponto de entrada.
+**Impacto:** não há um comando padrão reproduzível para validar o projeto completo ou executar regressões no CI.
 
-**Correção sugerida:** decidir e documentar a versão do JDK e configurar um build reproduzível (por exemplo, Maven ou Gradle) antes de adicionar testes automatizados.
+### Risco — escopo de arquitetura pendente
 
-### 4. Cobertura de testes insuficiente para atestar o funcionamento
+As regras do próprio repositório solicitam decisão formal de stack e estrutura antes da implementação principal. O diretório de ADRs consultado contém apenas o README de orientação, sem decisão de stack aprovada.
 
-**Classificação:** melhoria prioritária.
+## Plano de validação para os Cards 4 e 5
 
-Não foi possível confirmar testes automatizados para catálogo, pesquisa, favoritos e playlists. O workflow atual não testa esses comportamentos.
-
-**Correção sugerida:** depois de padronizar os pacotes e o build, criar testes para:
-- busca por título/artista sem diferenciar maiúsculas e minúsculas;
-- termo nulo/vazio e catálogo vazio;
-- adicionar/remover alternar favoritos e impedir duplicatas;
-- criar playlist com nome válido e rejeitar nome vazio;
-- adicionar/remover faixas e buscar playlist por ID;
-- duração formatada e igualdade de faixas por ID.
+A matriz detalhada está em [`docs/PLANO-TESTES-CARDS-4-5.md`](./PLANO-TESTES-CARDS-4-5.md). Os casos de busca que dependem do `SearchService` ficam **pendentes** até resolver a estrutura de pacotes e a integração com o menu.
 
 ## Próximos passos recomendados
 
-1. Corrigir a incompatibilidade de IDs em `PlaylistService` e `Playlist`.
-2. Definir e aplicar uma única estrutura de pacotes Java, incluindo `SearchService` e `Track`.
-3. Definir o JDK mínimo e adicionar configuração de build reproduzível.
-4. Adicionar testes unitários para os serviços.
-5. Atualizar o GitHub Actions para executar compilação e testes em cada pull request.
-6. Reexecutar os testes e atualizar este relatório com comandos e resultados reais.
+1. Registrar/aprovar a estrutura de pacotes e o build Java conforme as regras do projeto.
+2. Ajustar `SearchService` para usar o mesmo modelo `Track` e a estrutura de fontes definida — sem manter imports incompatíveis.
+3. Integrar a busca ao menu do terminal, mostrando ID, título, artista e duração; capturar entradas inválidas para que o menu continue funcionando.
+4. Adicionar os casos da matriz como testes automatizados reproduzíveis.
+5. Executar compilação e todos os testes no projeto completo e, se possível, adicionar o comando real ao GitHub Actions.
+6. Atualizar este relatório com os comandos e resultados finais reais.
 
-## Limitações e honestidade dos resultados
+## Limitações
 
-Este relatório não declara que a aplicação foi executada com sucesso. O resultado verde observado é apenas do workflow de governança/integridade. Os problemas de código foram apontados por inspeção dos arquivos do commit informado; a compilação real ainda deve ser executada após as correções.
+- Não foi possível clonar o repositório por indisponibilidade de resolução de `github.com` no ambiente de execução.
+- Não foi executado build completo de todos os arquivos.
+- Os oito testes aprovados validam apenas uma cópia temporária dos fontes de modelo/catálogo, não a integração completa do projeto.
+- Os testes de busca por título/artista usando `SearchService`, a integração no menu e os fluxos de interface ainda não foram aprovados.
+- Não foi alterada a branch `main`; este relatório foi preparado para a branch de trabalho.
 
 ---
-Relatório preparado com assistência de monitor de programação, com foco em evidências verificáveis e sem alterar a branch `main`.
+Relatório preparado com assistência de monitor de programação, registrando evidências e limitações sem afirmar resultados não verificados.

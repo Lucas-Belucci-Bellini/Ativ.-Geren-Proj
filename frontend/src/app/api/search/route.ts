@@ -5,6 +5,7 @@ export const runtime = "nodejs";
 export async function GET(request: NextRequest) {
   const query = request.nextUrl.searchParams.get("q")?.trim();
   if (!query) return NextResponse.json({ error: "Digite o nome de uma música ou artista." }, { status: 400 });
+  if (query.length > 120) return NextResponse.json({ error: "A pesquisa deve ter no máximo 120 caracteres." }, { status: 400 });
   const token = process.env.SOUNDCLOUD_ACCESS_TOKEN;
   if (!token) return NextResponse.json({ error: "A busca está pronta, mas falta configurar SOUNDCLOUD_ACCESS_TOKEN no ambiente do servidor." }, { status: 503 });
 

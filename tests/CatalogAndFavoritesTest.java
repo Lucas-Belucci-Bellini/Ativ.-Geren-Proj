@@ -20,7 +20,7 @@ class CatalogAndFavoritesTest {
     @Test
     void naoPermiteIdDuplicadoNoCatalogo() {
         CatalogService catalog = new CatalogService();
-        Track original = catalog.getAllTracks().getFirst();
+        Track original = catalog.getAllTracks().get(0);
         Track duplicada = new Track(original.id(), "Outro título", "Outro artista",
                 10, null, new File("outro.mp3"));
 

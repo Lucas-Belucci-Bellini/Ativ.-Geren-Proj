@@ -29,8 +29,7 @@ mvn clean verify
 O comando compila os fontes e executa os testes automatizados. Para iniciar o menu de terminal (busca externa requer token do SoundCloud):
 
 ```bash
-mvn -q -DskipTests package
-java -cp 'target/classes;target/dependency/*' Main
+mvn -q org.codehaus.mojo:exec-maven-plugin:3.5.0:java -Dexec.mainClass=Main
 ```
 
 ## Organização atual

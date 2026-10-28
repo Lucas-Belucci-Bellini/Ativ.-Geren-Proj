@@ -84,7 +84,7 @@ System.out.println("Metadados independentes: "
         + verification.metadataMatches().size());
 ```
 
-`TrackVerification` fornece os resultados de letras e os candidatos do MusicBrainz separadamente. Uma letra aproximada não deve ser apresentada como verificada; resultados de metadados são referências para comparação, não prova legal de autoria. A pesquisa e a verificação fazem chamadas de rede e podem falhar por autenticação, limites ou indisponibilidade.
+`TrackVerification` fornece os resultados de letras e os candidatos do MusicBrainz separadamente. Uma letra aproximada não deve ser apresentada como verificada; resultados de metadados são referências para comparação, não prova legal de autoria. Quando o LRCLIB retornar texto de letra, o menu de terminal pergunta se você deseja exibi-lo e identifica a fonte. A pesquisa e a verificação fazem chamadas de rede e podem falhar por autenticação, limites ou indisponibilidade.
 
 ## 6. O que ainda não está implementado
 

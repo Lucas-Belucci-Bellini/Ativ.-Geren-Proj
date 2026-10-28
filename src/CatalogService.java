@@ -5,14 +5,20 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+/**
+ * Mantém o catálogo de faixas disponível para a aplicação.
+ * O catálogo inicial é de demonstração; os caminhos de áudio/capa não são validados aqui.
+ */
 public class CatalogService {
 
     private final List<Track> tracks;
 
+    /** Inicializa o catálogo em memória com algumas faixas de exemplo. */
     public CatalogService() {
         this.tracks = new ArrayList<>(initialCatalog());
     }
 
+    /** Cria a lista inicial imutável de exemplos que será copiada para a lista interna. */
     private static List<Track> initialCatalog() {
         return List.of(
                 new Track("t-001", "Bohemian Rhapsody", "Queen", 354,
@@ -42,30 +48,40 @@ public class CatalogService {
         );
     }
 
+    /** Retorna uma cópia imutável para que consumidores não modifiquem o catálogo por fora. */
     public List<Track> getAllTracks() {
         return List.copyOf(tracks);
     }
 
+    /** Busca a primeira faixa com o ID exato informado. */
     public Optional<Track> findById(String id) {
         return tracks.stream()
                 .filter(t -> t.id().equals(id))
                 .findFirst();
     }
 
+    /** Pesquisa títulos por trecho, sem diferenciar maiúsculas/minúsculas. */
     public List<Track> findByTitle(String term) {
-        String needle = term.toLowerCase();
-        return filterBy(t -> t.title().toLowerCase().contains(needle));
+        String needle = term.toLowerCase(java.util.Locale.ROOT);
+        return filterBy(t -> t.title().toLowerCase(java.util.Locale.ROOT).contains(needle));
     }
 
+    /** Pesquisa artistas por trecho, sem diferenciar maiúsculas/minúsculas. */
     public List<Track> findByArtist(String artist) {
-        String needle = artist.toLowerCase();
-        return filterBy(t -> t.artist().toLowerCase().contains(needle));
+        String needle = artist.toLowerCase(java.util.Locale.ROOT);
+        return filterBy(t -> t.artist().toLowerCase(java.util.Locale.ROOT).contains(needle));
     }
 
+    /** Retorna a quantidade atual de faixas cadastradas. */
     public int getTrackCount() {
         return tracks.size();
     }
 
+    /**
+     * Adiciona uma faixa se o ID ainda não estiver cadastrado.
+     * @throws NullPointerException se a faixa for null
+     * @throws IllegalArgumentException se já existir uma faixa com o mesmo ID
+     */
     public void addTrack(Track track) {
         Objects.requireNonNull(track, "track");
         if (findById(track.id()).isPresent()) {
@@ -74,10 +90,12 @@ public class CatalogService {
         tracks.add(track);
     }
 
+    /** Remove todas as faixas com o ID informado; retorna true quando houve remoção. */
     public boolean removeById(String id) {
         return tracks.removeIf(t -> t.id().equals(id));
     }
 
+    /** Aplica um filtro reutilizável e devolve somente os resultados encontrados. */
     private List<Track> filterBy(Predicate<Track> predicate) {
         return tracks.stream().filter(predicate).toList();
     }

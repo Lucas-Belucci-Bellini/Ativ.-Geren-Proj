@@ -8,6 +8,8 @@ export async function GET(request: NextRequest) {
   const artist = request.nextUrl.searchParams.get("artist")?.trim() ?? "";
   const duration = Number(request.nextUrl.searchParams.get("duration") ?? 0);
   if (!title || !artist) return NextResponse.json({ error: "Título e artista são necessários para verificar a faixa." }, { status: 400 });
+  if (title.length > 200 || artist.length > 160) return NextResponse.json({ error: "Título ou artista excede o limite permitido." }, { status: 400 });
+  if (!Number.isFinite(duration) || duration < 0 || duration > 86400) return NextResponse.json({ error: "Duração inválida para verificação." }, { status: 400 });
 
   const headers = { "User-Agent": "SonoraMusicCatalog/0.1 (academic project; https://github.com/Lucas-Belucci-Bellini/Ativ.-Geren-Proj)", Accept: "application/json" };
   const lyricsUrl = new URL("https://lrclib.net/api/search");
@@ -26,7 +28,8 @@ export async function GET(request: NextRequest) {
   let lyric: Record<string, unknown> | null = null;
   let recordings: Array<Record<string, unknown>> = [];
   if (lyricsResponse.status === "fulfilled" && lyricsResponse.value.ok) {
-    const rows = await lyricsResponse.value.json();
+    let rows: unknown = null;
+    try { rows = await lyricsResponse.value.json(); } catch { /* A fonte pode retornar uma resposta não JSON. */ }
     if (Array.isArray(rows)) {
       const ranked = rows.map((row: Record<string, unknown>) => {
         const titleMatch = normalize(String(row.trackName ?? "")) === normalize(title);
@@ -39,8 +42,9 @@ export async function GET(request: NextRequest) {
     }
   }
   if (musicResponse.status === "fulfilled" && musicResponse.value.ok) {
-    const data = await musicResponse.value.json();
-    recordings = Array.isArray(data.recordings) ? data.recordings.slice(0, 5).map((item: Record<string, unknown>) => ({ id: item.id, title: item.title, artist: Array.isArray(item["artist-credit"]) ? (item["artist-credit"] as Array<Record<string, unknown>>).map((credit) => String(credit.name ?? (credit.artist as Record<string, unknown> | undefined)?.name ?? "")).join("") : "Artista desconhecido", length: item.length ?? null })) : [];
+    let data: Record<string, unknown> = {};
+    try { data = await musicResponse.value.json(); } catch { /* A fonte pode retornar uma resposta não JSON. */ }
+    recordings = Array.isArray(data.recordings) ? data.recordings.slice(0, 5).map((item: Record<string, unknown>) => ({ id: item.id, title: item.title, artist: Array.isArray(item["artist-credit"]) ? (item["artist-credit"] as Array<Record<string, unknown>>).map((credit) => String(credit.name ?? (credit.artist as Record<string, unknown> | undefined)?.name ?? "") + String(credit.joinphrase ?? "")).join("") : "Artista desconhecido", length: item.length ?? null })) : [];
   }
   return NextResponse.json({ lyrics: lyric ? { title: lyric.trackName, artist: lyric.artistName, album: lyric.albumName, duration: lyric.duration, verified: lyric.verified, matchType: lyric.matchType, plainLyrics: lyric.plainLyrics ?? null, syncedLyrics: lyric.syncedLyrics ?? null, instrumental: lyric.instrumental ?? false, source: "LRCLIB" } : null, recordings, warnings: [lyricsResponse.status === "rejected" || (lyricsResponse.status === "fulfilled" && !lyricsResponse.value.ok) ? "A consulta de letras não respondeu; os metadados podem continuar disponíveis." : null, musicResponse.status === "rejected" || (musicResponse.status === "fulfilled" && !musicResponse.value.ok) ? "A consulta MusicBrainz não respondeu; tente novamente mais tarde." : null].filter(Boolean) });
 }

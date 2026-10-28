@@ -17,6 +17,10 @@
 7. **Integração contínua:** adicionado workflow `.github/workflows/java-tests.yml` para compilar e executar os testes no GitHub Actions.
 8. **README:** documentados requisitos, funcionalidades existentes e comandos de execução.
 
+## Issues do GitHub
+
+Foi tentada a abertura de uma Issue para registrar o defeito, mas o GitHub respondeu que Issues estão desabilitadas neste repositório (HTTP 410). O defeito e a correção estão descritos neste relatório e no [Pull Request #1](https://github.com/Lucas-Belucci-Bellini/Ativ.-Geren-Proj/pull/1).
+
 ## Como validar localmente
 
 Na raiz do projeto:

@@ -18,15 +18,18 @@ const waiters: Array<() => void> = [];
 
 async function acquireSlot(): Promise<() => void> {
   if (activeRequests >= MAX_CONCURRENT_UPSTREAM) {
+    // O slot é transferido pelo release() que acorda este waiter.
     await new Promise<void>((resolve) => waiters.push(resolve));
+  } else {
+    activeRequests += 1;
   }
-  activeRequests += 1;
   let released = false;
   return () => {
     if (released) return;
     released = true;
-    activeRequests = Math.max(0, activeRequests - 1);
-    waiters.shift()?.();
+    const next = waiters.shift();
+    if (next) next();
+    else activeRequests = Math.max(0, activeRequests - 1);
   };
 }
 

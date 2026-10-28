@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { resilientFetch } from "@/lib/resilient-fetch";
 
 export const runtime = "nodejs";
 
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
     url.searchParams.set("q", query);
     url.searchParams.set("limit", "20");
     url.searchParams.set("linked_partitioning", "true");
-    const response = await fetch(url, { headers: { Authorization: `OAuth ${token}`, Accept: "application/json" }, signal: AbortSignal.timeout(12000), cache: "no-store" });
+    const response = await resilientFetch(url, { headers: { Authorization: `OAuth ${token}`, Accept: "application/json" } }, { timeoutMs: 12_000, cacheTtlMs: 15_000 });
     if (!response.ok) {
       const status = response.status === 429 ? 429 : response.status === 401 || response.status === 403 ? 503 : 502;
       return NextResponse.json({ error: response.status === 429 ? "Limite de buscas atingido. Aguarde um pouco." : "O SoundCloud não conseguiu atender à busca. Verifique o token e tente novamente." }, { status });

@@ -126,6 +126,23 @@ public class Main {
                         + (recording.album() == null ? "" : " | Álbum: " + recording.album())));
 
         System.out.println("Observação: correspondência técnica não comprova direitos autorais.");
+
+        if (lyrics.found() && (lyrics.plainLyrics() != null || lyrics.syncedLyrics() != null)) {
+            try (Scanner scanner = new Scanner(System.in)) {
+                System.out.print("Deseja mostrar a letra retornada pela fonte? (s/n): ");
+                String answer = scanner.nextLine().strip();
+                if (answer.equalsIgnoreCase("s") || answer.equalsIgnoreCase("sim")) {
+                    String text = lyrics.plainLyrics() != null
+                            ? lyrics.plainLyrics() : lyrics.syncedLyrics();
+                    System.out.println("\\n--- Letra fornecida por " + lyrics.source() + " ---");
+                    System.out.println(text);
+                    System.out.println("\\nFonte: " + lyrics.source()
+                            + " (consulte os termos e a disponibilidade do provedor).");
+                }
+            }
+        } else {
+            System.out.println("A fonte não retornou texto de letra para esta correspondência.");
+        }
     }
 
     private static int readNumber(Scanner scanner) {

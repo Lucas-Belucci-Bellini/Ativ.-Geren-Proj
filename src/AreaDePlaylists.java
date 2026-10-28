@@ -1,11 +1,7 @@
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-/**
- * Área de playlists no terminal, com Criar, Listar, Consultar e Voltar.
- * Fica fora da Main para não alterar o menu dos outros arquivos do grupo.
- * Pode ser executada com {@code java AreaDePlaylists} ou aberta pelo método {@link #abrir()}.
- */
+
 public class AreaDePlaylists {
 
     private final PlaylistService playlists;
@@ -29,9 +25,7 @@ public class AreaDePlaylists {
         System.out.println("Até logo!");
     }
 
-    /**
-     * Mantém o submenu aberto até a opção Voltar.
-     */
+ 
     public void abrir() {
         while (true) {
             System.out.println("""
@@ -54,9 +48,7 @@ public class AreaDePlaylists {
         }
     }
 
-    /**
-     * Lê o nome e delega a rejeição de vazio ou só espaços ao PlaylistService.
-     */
+  
     private void criar() {
         try {
             Playlist nova = playlists.criar(lerLinha("Nome da playlist: "));
@@ -66,16 +58,12 @@ public class AreaDePlaylists {
         }
     }
 
-    /**
-     * Mostra ID, nome e quantidade de faixas de cada playlist cadastrada.
-     */
+ 
     private void listar() {
         System.out.print(playlists.formatarListagem());
     }
 
-    /**
-     * Pede o ID numérico, busca a playlist e imprime os detalhes de cada faixa no catálogo.
-     */
+
     private void consultar() {
         String texto = lerLinha("ID da playlist: ").strip();
         if (texto.isEmpty()) {

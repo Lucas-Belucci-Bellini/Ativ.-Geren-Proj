@@ -1,159 +1,289 @@
-import java.io.IOException;
+import java.io.File;
+import java.text.Normalizer;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Scanner;
+import java.util.Set;
 
-/**
- * Interface de terminal inicial para descobrir músicas e conferir metadados.
- * A reprodução de áudio e uma interface gráfica serão etapas posteriores.
- */
 public class Main {
-    private static final int RESULT_LIMIT = 10;
+
+    private static final CatalogService catalogo = new CatalogService();
+    private static final PlaylistService playlists = new PlaylistService();
+    private static final Scanner entrada = new Scanner(System.in);
 
     public static void main(String[] args) {
-        try (Scanner scanner = new Scanner(System.in)) {
-            MusicDiscoveryService music = new MusicDiscoveryService();
-            boolean running = true;
-
-            System.out.println("====================================");
-            System.out.println("       CATÁLOGO MUSICAL");
-            System.out.println("====================================");
-
-            while (running) {
-                System.out.println("\n1. Buscar músicas no SoundCloud");
-                System.out.println("2. Verificar título, artista e letra");
-                System.out.println("0. Sair");
-                System.out.print("Escolha: ");
-                String option = scanner.nextLine().strip();
-
-                switch (option) {
-                    case "1" -> searchAndVerify(scanner, music);
-                    case "2" -> verifyManual(scanner, music);
-                    case "0" -> running = false;
-                    default -> System.out.println("Opção inválida. Escolha 1, 2 ou 0.");
-                }
+        System.out.println("=== Spotify Clone (terminal) ===");
+        try {
+            boolean executando = true;
+            while (executando) {
+                exibirMenu();
+                executando = tratarOpcao(lerLinha("Escolha uma opção: "));
             }
-            System.out.println("Até mais!");
+        } catch (NoSuchElementException e) {
+            // Scanner.nextLine() lança esta exceção quando não há mais linhas para ler.
+            System.out.println("\nEntrada encerrada.");
         }
+        System.out.println("Até logo!");
     }
 
-    private static void searchAndVerify(Scanner scanner, MusicDiscoveryService music) {
-        System.out.print("Digite o título, artista ou palavras-chave: ");
-        String query = scanner.nextLine().strip();
-        if (query.isBlank()) {
-            System.out.println("Digite algum termo para pesquisar.");
+    // ------------------------------------------------------------------ menu
+
+    private static void exibirMenu() {
+        System.out.println("""
+
+                ----- Músicas -----
+                1. Listar catálogo
+                2. Cadastrar nova música
+                3. Buscar música (título ou artista)
+                4. Remover música do catálogo
+                ----- Playlists -----
+                5. Criar playlist
+                6. Listar playlists
+                7. Ver faixas de uma playlist
+                8. Adicionar música a uma playlist
+                9. Remover música de uma playlist
+                0. Sair
+                """);
+    }
+
+    private static boolean tratarOpcao(String opcao) {
+        switch (opcao.strip()) {
+            case "1" -> listarCatalogo();
+            case "2" -> cadastrarMusica();
+            case "3" -> buscarMusica();
+            case "4" -> removerMusicaDoCatalogo();
+            case "5" -> criarPlaylist();
+            case "6" -> listarPlaylists();
+            case "7" -> verFaixasDaPlaylist();
+            case "8" -> adicionarMusicaNaPlaylist();
+            case "9" -> removerMusicaDaPlaylist();
+            case "0" -> {
+                return false;
+            }
+            default -> System.out.println("Opção inválida. Digite um número de 0 a 9.");
+        }
+        return true;
+    }
+
+    // --------------------------------------------------------------- músicas
+
+    private static void listarCatalogo() {
+        List<Track> todas = catalogo.getAllTracks();
+        if (todas.isEmpty()) {
+            System.out.println("O catálogo está vazio.");
+            return;
+        }
+        System.out.println("\nCatálogo (" + todas.size() + " músicas):");
+        todas.forEach(Main::imprimirMusica);
+    }
+
+    private static void cadastrarMusica() {
+        String titulo = lerLinha("Título: ").strip();
+        String artista = lerLinha("Artista: ").strip();
+        if (titulo.isEmpty() || artista.isEmpty()) {
+            System.out.println("Título e artista são obrigatórios. Música não cadastrada.");
             return;
         }
 
         try {
-            List<SoundCloudSearchService.SoundCloudTrack> tracks =
-                    music.search(query, RESULT_LIMIT);
-            if (tracks.isEmpty()) {
-                System.out.println("Nenhuma faixa foi encontrada.");
-                return;
+            int duracao = lerDuracaoEmSegundos(lerLinha("Duração (mm:ss ou segundos): "));
+
+            String caminhoAudio = lerLinha("Arquivo de áudio (Enter para o padrão): ").strip();
+            if (caminhoAudio.isEmpty()) {
+                caminhoAudio = "audio/" + gerarSlug(titulo) + ".mp3";
             }
+            String caminhoCapa = lerLinha("Arquivo de capa (Enter para nenhuma): ").strip();
+            File capa = caminhoCapa.isEmpty() ? null : new File(caminhoCapa);
 
-            System.out.println("\nResultados:");
-            for (int i = 0; i < tracks.size(); i++) {
-                var track = tracks.get(i);
-                System.out.printf("%d. %s — %s (%s)%n", i + 1, track.title(),
-                        track.artist(), formatDuration(track.durationMillis()));
-                if (track.artworkUrl() != null) System.out.println("   Capa: " + track.artworkUrl());
-                if (track.permalinkUrl() != null) System.out.println("   Abrir: " + track.permalinkUrl());
-            }
-
-            System.out.print("\nNúmero da faixa para verificar (0 para voltar): ");
-            int selected = readNumber(scanner);
-            if (selected == 0) return;
-            if (selected < 1 || selected > tracks.size()) {
-                System.out.println("Número fora da lista.");
-                return;
-            }
-
-            var track = tracks.get(selected - 1);
-            int durationSeconds = (int) Math.round(track.durationMillis() / 1000.0);
-            showVerification(scanner, music, track.title(), track.artist(), durationSeconds);
-        } catch (IllegalStateException e) {
-            System.out.println(e.getMessage());
-            System.out.println("Consulte docs/INTEGRACOES-MUSICAIS.md para configurar o token.");
-        } catch (IOException e) {
-            System.out.println("Não foi possível pesquisar no SoundCloud: " + e.getMessage());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            System.out.println("Pesquisa interrompida.");
-        }
-    }
-
-    private static void verifyManual(Scanner scanner, MusicDiscoveryService music) {
-        System.out.print("Título da música: ");
-        String title = scanner.nextLine().strip();
-        System.out.print("Nome do artista: ");
-        String artist = scanner.nextLine().strip();
-        System.out.print("Duração em segundos (0 se desconhecida): ");
-        int duration = readNumber(scanner);
-
-        try {
-            showVerification(scanner, music, title, artist, duration);
+            Track nova = new Track(proximoIdDeMusica(), titulo, artista, duracao,
+                    capa, new File(caminhoAudio));
+            catalogo.addTrack(nova);
+            System.out.println("Música cadastrada: " + nova);
         } catch (IllegalArgumentException e) {
-            System.out.println("Confira os dados: " + e.getMessage());
-        } catch (IOException e) {
-            System.out.println("Não foi possível consultar os provedores: " + e.getMessage());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            System.out.println("Verificação interrompida.");
+            System.out.println("Não foi possível cadastrar: " + e.getMessage());
         }
     }
 
-    private static void showVerification(Scanner scanner, MusicDiscoveryService music, String title,
-                                         String artist, int durationSeconds)
-            throws IOException, InterruptedException {
-        var result = music.verify(title, artist, durationSeconds);
-        var lyrics = result.lyrics();
-
-        System.out.println("\n--- Conferência da faixa ---");
-        System.out.println("Letras: " + lyrics.message());
-        if (lyrics.found()) {
-            System.out.println("Candidato LRCLIB: " + lyrics.title() + " — " + lyrics.artist());
-            if (lyrics.album() != null) System.out.println("Álbum: " + lyrics.album());
-            System.out.println("Instrumental: " + (lyrics.instrumental() ? "sim" : "não"));
-            System.out.println("Letra disponível: "
-                    + (lyrics.plainLyrics() != null || lyrics.syncedLyrics() != null ? "sim" : "não"));
+    private static void buscarMusica() {
+        String termo = lerLinha("Termo de busca (título ou artista): ").strip();
+        if (termo.isEmpty()) {
+            System.out.println("Digite um termo de busca.");
+            return;
         }
 
-        System.out.println("Candidatos de metadados MusicBrainz: "
-                + result.metadataMatches().size());
-        result.metadataMatches().stream().limit(5).forEach(recording ->
-                System.out.println("- " + recording.title() + " — " + recording.artist()
-                        + (recording.album() == null ? "" : " | Álbum: " + recording.album())));
+        Set<Track> resultado = new LinkedHashSet<>(catalogo.findByTitle(termo));
+        resultado.addAll(catalogo.findByArtist(termo));
 
-        System.out.println("Observação: correspondência técnica não comprova direitos autorais.");
-
-        if (lyrics.found() && (lyrics.plainLyrics() != null || lyrics.syncedLyrics() != null)) {
-            System.out.print("Deseja mostrar a letra retornada pela fonte? (s/n): ");
-            String answer = scanner.nextLine().strip();
-            if (answer.equalsIgnoreCase("s") || answer.equalsIgnoreCase("sim")) {
-                String text = lyrics.plainLyrics() != null
-                        ? lyrics.plainLyrics() : lyrics.syncedLyrics();
-                System.out.println("\n--- Letra fornecida por " + lyrics.source() + " ---");
-                System.out.println(text);
-                System.out.println("\nFonte: " + lyrics.source()
-                        + " (consulte os termos e a disponibilidade do provedor).");
-            }
-        } else {
-            System.out.println("A fonte não retornou texto de letra para esta correspondência.");
+        if (resultado.isEmpty()) {
+            System.out.println("Nenhuma música encontrada para \"" + termo + "\".");
+            return;
         }
+        System.out.println("\n" + resultado.size() + " resultado(s):");
+        resultado.forEach(Main::imprimirMusica);
     }
 
-    private static int readNumber(Scanner scanner) {
-        String value = scanner.nextLine().strip();
+    private static void removerMusicaDoCatalogo() {
+        listarCatalogo();
+        String id = lerLinha("Id da música a remover: ").strip();
+        if (!catalogo.removeById(id)) {
+            System.out.println("Música não encontrada: " + id);
+            return;
+        }
+        playlists.listar().forEach(p -> p.removerFaixa(id));
+        System.out.println("Música " + id + " removida do catálogo e das playlists.");
+    }
+
+    // ------------------------------------------------------------- playlists
+
+    private static void criarPlaylist() {
         try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            return -1;
+            Playlist nova = playlists.criar(lerLinha("Nome da playlist: "));
+            System.out.println("Playlist criada: [" + nova.getId() + "] " + nova.getNome());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Não foi possível criar: " + e.getMessage());
         }
     }
 
-    private static String formatDuration(long durationMillis) {
-        long totalSeconds = Math.max(0, durationMillis / 1000);
-        return "%02d:%02d".formatted(totalSeconds / 60, totalSeconds % 60);
+    private static void listarPlaylists() {
+        List<Playlist> todas = playlists.listar();
+        if (todas.isEmpty()) {
+            System.out.println("Nenhuma playlist criada ainda.");
+            return;
+        }
+        System.out.println("\nPlaylists:");
+        todas.forEach(p -> System.out.printf("  [%s] %s (%d faixa(s))%n",
+                p.getId(), p.getNome(), p.getQuantidadeFaixas()));
+    }
+
+    private static void verFaixasDaPlaylist() {
+        escolherPlaylist().ifPresent(p -> {
+            if (p.getQuantidadeFaixas() == 0) {
+                System.out.println("A playlist \"" + p.getNome() + "\" está vazia.");
+                return;
+            }
+            System.out.println("\nPlaylist \"" + p.getNome() + "\":");
+            for (String faixaId : p.getFaixaIds()) {
+                catalogo.findById(faixaId).ifPresentOrElse(
+                        Main::imprimirMusica,
+                        () -> System.out.println("  " + faixaId + " (música não está mais no catálogo)"));
+            }
+        });
+    }
+
+    private static void adicionarMusicaNaPlaylist() {
+        Optional<Playlist> escolhida = escolherPlaylist();
+        if (escolhida.isEmpty()) {
+            return;
+        }
+        listarCatalogo();
+        String id = lerLinha("Id da música a adicionar: ").strip();
+        Optional<Track> musica = catalogo.findById(id);
+        if (musica.isEmpty()) {
+            System.out.println("Música não encontrada: " + id);
+            return;
+        }
+
+        Playlist playlist = escolhida.get();
+        if (playlist.adicionarFaixa(id)) {
+            System.out.println("\"" + musica.get().title() + "\" adicionada a \"" + playlist.getNome() + "\".");
+        } else {
+            System.out.println("Essa música já está na playlist.");
+        }
+    }
+
+    private static void removerMusicaDaPlaylist() {
+        Optional<Playlist> escolhida = escolherPlaylist();
+        if (escolhida.isEmpty()) {
+            return;
+        }
+        Playlist playlist = escolhida.get();
+        if (playlist.getQuantidadeFaixas() == 0) {
+            System.out.println("A playlist \"" + playlist.getNome() + "\" está vazia.");
+            return;
+        }
+        for (String faixaId : playlist.getFaixaIds()) {
+            catalogo.findById(faixaId).ifPresent(Main::imprimirMusica);
+        }
+        String id = lerLinha("Id da música a remover da playlist: ").strip();
+        if (playlist.removerFaixa(id)) {
+            System.out.println("Música " + id + " removida de \"" + playlist.getNome() + "\".");
+        } else {
+            System.out.println("Essa música não está na playlist.");
+        }
+    }
+
+    private static Optional<Playlist> escolherPlaylist() {
+        if (playlists.listar().isEmpty()) {
+            System.out.println("Nenhuma playlist criada ainda. Use a opção 5 primeiro.");
+            return Optional.empty();
+        }
+        listarPlaylists();
+        String texto = lerLinha("Id da playlist: ").strip();
+        try {
+            Optional<Playlist> playlist = playlists.buscarPorId(Integer.parseInt(texto));
+            if (playlist.isEmpty()) {
+                System.out.println("Playlist não encontrada: " + texto);
+            }
+            return playlist;
+        } catch (NumberFormatException e) {
+            System.out.println("Id de playlist inválido: \"" + texto + "\" (use apenas números).");
+            return Optional.empty();
+        }
+    }
+
+    // --------------------------------------------------------------- apoio
+
+    private static String lerLinha(String prompt) {
+        System.out.print(prompt);
+        return entrada.nextLine();
+    }
+
+    private static void imprimirMusica(Track t) {
+        System.out.printf("  %-6s %-28s %-20s %s%n",
+                t.id(), t.title(), t.artist(), t.formattedDuration());
+    }
+
+    private static String proximoIdDeMusica() {
+        int n = catalogo.getTrackCount() + 1;
+        String id;
+        do {
+            id = "t-%03d".formatted(n++);
+        } while (catalogo.findById(id).isPresent());
+        return id;
+    }
+
+    private static int lerDuracaoEmSegundos(String texto) {
+        String t = texto.strip();
+        try {
+            if (t.contains(":")) {
+                String[] partes = t.split(":");
+                if (partes.length != 2) {
+                    throw new IllegalArgumentException("Use o formato mm:ss ou apenas segundos.");
+                }
+                int minutos = Integer.parseInt(partes[0].strip());
+                int segundos = Integer.parseInt(partes[1].strip());
+                if (minutos < 0 || segundos < 0 || segundos > 59) {
+                    throw new IllegalArgumentException("Duração inválida: minutos >= 0 e segundos entre 0 e 59.");
+                }
+                return minutos * 60 + segundos;
+            }
+            int total = Integer.parseInt(t);
+            if (total < 0) {
+                throw new IllegalArgumentException("A duração não pode ser negativa.");
+            }
+            return total;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Duração inválida. Use mm:ss ou apenas segundos.");
+        }
+    }
+
+    private static String gerarSlug(String titulo) {
+        String semAcento = Normalizer.normalize(titulo, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+        String slug = semAcento.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", "_")
+                .replaceAll("^_+|_+$", "");
+        return slug.isEmpty() ? "faixa" : slug;
     }
 }

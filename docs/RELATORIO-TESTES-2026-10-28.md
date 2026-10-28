@@ -84,4 +84,3 @@ Não foi possível confirmar testes automatizados para catálogo, pesquisa, favo
 Este relatório não declara que a aplicação foi executada com sucesso. O resultado verde observado é apenas do workflow de governança/integridade. Os problemas de código foram apontados por inspeção dos arquivos do commit informado; a compilação real ainda deve ser executada após as correções.
 
 ---
-Relatório preparado com assistência de monitor de programação, com foco em evidências verificáveis e sem alterar a branch `main`.

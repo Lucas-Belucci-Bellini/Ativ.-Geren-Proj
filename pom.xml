@@ -14,7 +14,7 @@
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.11.4</junit.version>
-        <jackson.version>2.18.2</jackson.version>
+        <jackson.version>2.18.11</jackson.version>
     </properties>
 
     <!-- Os fontes existentes ficam diretamente em src/; os testes ficam em tests/. -->

@@ -1,23 +1,29 @@
 # Compilação Java e importação Maven
 
-O backend mantém **compatibilidade de bytecode/API com Java 17** por meio de `maven.compiler.release=17`. O JDK usado para executar Maven/IntelliJ pode ser o 17 ou o 24; usar JDK 24 não exige alterar o alvo de compilação. O Jackson Databind já está declarado no `pom.xml` como versão `2.18.2`; não adicione JARs manualmente nem crie uma segunda dependência.
+Este projeto usa **Java 17** como versão oficial de desenvolvimento, compilação e execução. O Maven Compiler está configurado com `maven.compiler.release=17`. Para evitar diferenças entre as máquinas da equipe, configure o IntelliJ IDEA e o Maven para usar um JDK 17.
 
-## IntelliJ IDEA
+O Jackson Databind já está declarado no `pom.xml` como versão `2.18.2`; não adicione JARs manualmente nem crie uma segunda dependência.
 
-1. Abra a raiz do repositório usando o `pom.xml` como projeto Maven. Não crie um módulo Java genérico.
-2. Se o projeto já estiver aberto, abra a janela **Maven** e selecione **Reload All Maven Projects**.
-3. Em **Project Structure**, selecione um JDK instalado e suportado no computador (JDK 24 no ambiente do Lucas; JDK 17 também é compatível).
-4. Em **Settings → Build Tools → Maven → Runner**, selecione o mesmo JDK instalado. O alvo de compilação continua sendo Java 17 por causa do `maven.compiler.release`.
-5. Na janela Maven, confirme que as dependências do projeto incluem `com.fasterxml.jackson.core:jackson-databind:2.18.2`.
-6. Execute `mvn clean verify` na raiz do repositório.
+## Instalação e configuração
+
+1. Instale um JDK 17.
+2. Configure o JDK 17 como SDK do projeto em **Project Structure** no IntelliJ IDEA.
+3. Abra a raiz do repositório usando o `pom.xml` como projeto Maven. Não crie um módulo Java genérico.
+4. Se o projeto já estiver aberto, abra a janela **Maven** e selecione **Reload All Maven Projects**.
+5. Em **Settings → Build Tools → Maven → Runner**, selecione o JDK 17.
+6. Na janela Maven, confirme que as dependências incluem `com.fasterxml.jackson.core:jackson-databind:2.18.2`.
+7. Execute `mvn clean verify` na raiz do repositório.
 
 ## Linha de comando
 
+Confirme que o terminal está usando Java 17:
+
 ```bash
+java -version
 mvn --batch-mode --no-transfer-progress clean verify
 ```
 
-Se a linha de comando compilar com JDK 17 ou JDK 24 e a IDE continuar acusando `package com.fasterxml.jackson.databind does not exist`, o projeto provavelmente ainda não foi recarregado como Maven. Reimporte o `pom.xml`; não altere a versão do Jackson para contornar um classpath desatualizado.
+Se a linha de comando compilar e a IDE continuar acusando `package com.fasterxml.jackson.databind does not exist`, reimporte o `pom.xml` e recarregue os projetos Maven. Não altere a versão do Jackson para contornar um classpath desatualizado.
 
 ## Configuração compartilhada
 

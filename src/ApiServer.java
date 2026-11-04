@@ -156,6 +156,7 @@ public final class ApiServer {
 
     /** /api/tracks e /api/tracks/{id}. */
     private Response tracks(String method, List<String> rest, Map<String, String> query) {
+    private Response tracks(String method, List<String> rest, Map<String, String> query, HttpExchange exchange) {
         // O catálogo de demonstração é somente leitura pela API. A descoberta externa
         // possui rotas próprias e nunca cadastra/remove faixas deste catálogo.
         if (rest.size() == 1) {

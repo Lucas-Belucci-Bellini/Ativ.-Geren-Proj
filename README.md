@@ -18,18 +18,20 @@ O menu de terminal (`Main`) continua cobrindo catálogo e playlists. A interface
 
 ## Requisitos
 
-- JDK 17
-- Maven 3.9 ou compatível
+- **JDK 25 (LTS)** — obrigatório para compilar e executar o projeto.
+- **Apache Maven 3.9 ou superior**.
 
 ## Como compilar e testar
 
 Na raiz do repositório, execute:
 
 ```bash
+mvn -version
+java -version
 mvn clean verify
 ```
 
-O comando compila os fontes e executa os testes automatizados.
+O Maven deve reportar que está sendo executado com Java 25. O comando `mvn clean verify` compila os fontes e executa os testes automatizados usando o JDK 25.
 
 ### IntelliJ IDEA / importação do Maven
 
@@ -37,8 +39,8 @@ O projeto deve ser aberto pela raiz usando o arquivo `pom.xml`, como projeto Mav
 
 1. Abra a pasta do repositório e selecione **Open as Project** a partir do `pom.xml` (ou adicione o `pom.xml` à janela Maven).
 2. Na janela **Maven**, use **Reload All Maven Projects** para resolver as dependências declaradas no POM.
-3. Configure **Project SDK** e **Maven Runner JRE** para JDK 17.
-4. Confirme que `Dependencies` do Maven contém `com.fasterxml.jackson.core:jackson-databind:2.18.2`.
+3. Configure **Project SDK**, **Project language level**, **Maven Runner JRE** e **Maven Importer JDK** para JDK 25.
+4. Confirme que o terminal integrado mostra Java 25 em `mvn -version` e `java -version`.
 5. Execute `mvn clean verify` na raiz. Não adicione JARs manualmente ao módulo.
 
 Os arquivos de configuração locais do IntelliJ (`.idea/` e `*.iml`) não são versionados: cada integrante gera sua configuração a partir do POM, evitando SDKs ou classpaths desatualizados de outra máquina.
@@ -60,7 +62,7 @@ mvn -q org.codehaus.mojo:exec-maven-plugin:3.5.0:java -Dexec.mainClass=Main
 
 3. Em outro terminal, inicie o frontend conforme [`frontend/README.md`](frontend/README.md) e abra http://localhost:3000.
 
-> No Windows, se a API ou os testes falharem com `Unable to establish loopback connection`, o caminho da pasta temporária está impedindo o JDK de criar sockets locais. Defina `-Djdk.net.unixdomain.tmpdir=C:\Users\<seu-usuario>` (por exemplo, em `MAVEN_OPTS` ou `-DargLine=...` nos testes).
+> No Windows, se a API ou os testes falharem com `Unable to establish loopback connection`, o caminho da pasta temporária está impedindo o JDK de criar sockets locais. Defina `-Djdk.net.unixdomain.tmpdir=C:\\Users\\<seu-usuario>` (por exemplo, em `MAVEN_OPTS` ou `-DargLine=...` nos testes).
 
 ## Organização atual
 
@@ -69,7 +71,7 @@ mvn -q org.codehaus.mojo:exec-maven-plugin:3.5.0:java -Dexec.mainClass=Main
 - `docs/`: relatórios e documentação técnica.
 - `frontend/`: aplicação web Next.js + React que consome a API Java.
 - `.github/workflows/frontend.yml`: build automatizado da interface web.
-- `.github/workflows/java-tests.yml`: compilação e testes no GitHub Actions.
+- `.github/workflows/java-tests.yml`: compilação e testes no GitHub Actions com JDK 25.
 
 > **Nota:** os arquivos Java permanecem no pacote padrão por enquanto, para manter compatibilidade com a estrutura acadêmica existente. Uma migração para pacotes nomeados pode ser feita em uma alteração separada.
 
@@ -121,7 +123,7 @@ Se não souber fazer isso, peça ao Lucas.
 1. Abra o repositório no [GitHub Desktop](https://desktop.github.com/).
 2. Clique na aba **History** (Histórico), à esquerda.
 3. Procure o commit com o título **"feat: expor API HTTP Java e conectar o frontend"**.
-4. Clique nele com o **botão direito** e escolha **Revert changes in commit** (Reverter alterações do commit).
+4. Clique nele com o **botão direito** e escolha **Revert changes in commit** (Reverter alterações no commit).
 5. O GitHub Desktop cria um novo commit desfazendo a API. Clique em **Push origin** para enviar.
 
 Não use o commit **"fix: corrigir compilação..."**: ele contém as correções que fazem o projeto funcionar e deve ficar.

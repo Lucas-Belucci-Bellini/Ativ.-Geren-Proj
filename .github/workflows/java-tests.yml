@@ -6,6 +6,7 @@ on:
       - main
       - "fix/**"
       - "test/**"
+      - "contrib/**"
   pull_request:
   workflow_dispatch:
 
@@ -16,14 +17,18 @@ jobs:
   build-and-test:
     name: Compile and run unit tests
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java-version: ["17", "24"]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Set up Java 17
+      - name: Set up Java ${{ matrix.java-version }}
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: ${{ matrix.java-version }}
           cache: maven
       - name: Compile and run tests
         run: mvn --batch-mode --no-transfer-progress clean verify

@@ -138,7 +138,7 @@ public final class ApiServer {
         String root = rest.isEmpty() ? "" : rest.get(0);
         return switch (root) {
             case "health" -> rest.size() == 1 ? health(method) : notFound();
-            case "tracks" -> tracks(method, rest, query, exchange);
+            case "tracks" -> tracks(method, rest, query);
             case "favorites" -> favorites(method, rest);
             case "playlists" -> playlists(method, rest, exchange);
             case "discovery" -> discovery(method, rest, query);
@@ -155,6 +155,7 @@ public final class ApiServer {
     }
 
     /** /api/tracks e /api/tracks/{id}. */
+    private Response tracks(String method, List<String> rest, Map<String, String> query) {
     private Response tracks(String method, List<String> rest, Map<String, String> query, HttpExchange exchange) {
         // O catálogo de demonstração é somente leitura pela API. A descoberta externa
         // possui rotas próprias e nunca cadastra/remove faixas deste catálogo.
@@ -296,14 +297,6 @@ public final class ApiServer {
         if (value == null || value.isNull()) return null;
         if (!value.isTextual()) throw new IllegalArgumentException("O campo " + field + " deve ser texto.");
         return value.asText();
-    }
-
-    private static int requireInt(JsonNode body, String field) {
-        JsonNode value = body.get(field);
-        if (value == null || !value.canConvertToInt() || !value.isIntegralNumber()) {
-            throw new IllegalArgumentException("O campo " + field + " deve ser um número inteiro.");
-        }
-        return value.asInt();
     }
 
     private static int parsePlaylistId(String raw) {

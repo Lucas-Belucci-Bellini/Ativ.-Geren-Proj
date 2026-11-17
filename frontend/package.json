@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint src next.config.ts"
+    "lint": "eslint src next.config.ts",
+    "musicas": "node scripts/gerar-indice-musicas.mjs"
   },
   "dependencies": {
     "next": "^15.5.6",

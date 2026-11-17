@@ -3,6 +3,9 @@
 import { FormEvent, useEffect, useState } from "react";
 import { api, type CatalogTrack, type DiscoveryTrack as Track, type Verification } from "@/lib/api";
 
+/** Faixa de teste em public/local-music, descrita pelo index.json gerado por scripts/gerar-indice-musicas.mjs. */
+type LocalTrack = { file: string; artist: string; title: string };
+
 const errorMessage = (e: unknown, fallback: string) => (e instanceof Error ? e.message : fallback);
 
 const duration = (ms: number) => {
@@ -21,10 +24,18 @@ export default function Home() {
   const [showLyrics, setShowLyrics] = useState(false);
   const [catalog, setCatalog] = useState<CatalogTrack[]>([]);
   const [catalogError, setCatalogError] = useState("");
+  const [localTracks, setLocalTracks] = useState<LocalTrack[]>([]);
+  const [playing, setPlaying] = useState<LocalTrack | null>(null);
 
   // Carrega o catálogo do backend Java uma vez; se a API estiver fora, mostra o aviso na seção.
   useEffect(() => {
     api.listTracks().then(setCatalog).catch(e => setCatalogError(errorMessage(e, "Falha ao carregar o catálogo.")));
+  }, []);
+
+  // Músicas locais só para testar o player: o índice é gerado por `npm run musicas`
+  // e fica fora do Git. Sem o índice, a seção simplesmente não aparece.
+  useEffect(() => {
+    fetch("/local-music/index.json").then(r => (r.ok ? r.json() : [])).then(setLocalTracks).catch(() => setLocalTracks([]));
   }, []);
 
   async function toggleFavorite(track: CatalogTrack) {
@@ -99,6 +110,12 @@ export default function Home() {
           {catalogError && <div className="notice" role="status"><span>ⓘ</span>{catalogError}</div>}
           {catalog.length > 0 && <div className="recordings-list">{catalog.map(track => <div className="recording-row" key={track.id}><span>{track.title} <small>• {track.duration}</small></span><span>{track.artist} <button className="close-button" aria-pressed={track.favorite} aria-label={track.favorite ? `Desfavoritar ${track.title}` : `Favoritar ${track.title}`} onClick={() => toggleFavorite(track)}>{track.favorite ? "♥" : "♡"}</button></span></div>)}</div>}
         </section>
+
+        {localTracks.length > 0 && <section className="results-section" id="local-player">
+          <div className="section-heading"><div><span className="section-kicker">TESTE DO PLAYER • ARQUIVOS LOCAIS</span><h2>Músicas locais</h2></div><span className="result-count">{localTracks.length} FAIXAS</span></div>
+          {playing && <div className="lyrics-block"><span className="section-kicker">TOCANDO AGORA</span><h3>{playing.title} — {playing.artist}</h3><audio key={playing.file} src={playing.file} controls autoPlay style={{ width: "100%" }} onEnded={() => { const i = localTracks.indexOf(playing); setPlaying(localTracks[i + 1] ?? null); }} /></div>}
+          <div className="recordings-list">{localTracks.map(track => <div className="recording-row" key={track.file}><span>{track.title}</span><span>{track.artist} <button className="close-button" aria-label={`Tocar ${track.title}`} onClick={() => setPlaying(track)}>{playing?.file === track.file ? "♪" : "▶"}</button></span></div>)}</div>
+        </section>}
         <footer><a className="footer-brand" href="#">sonora<span>.</span></a><span>Feito para explorar música com curiosidade.</span><span className="footer-status"><i /> FONTES EXTERNAS</span></footer>
       </section>
     </main>

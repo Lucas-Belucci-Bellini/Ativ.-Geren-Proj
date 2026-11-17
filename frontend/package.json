@@ -6,8 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint src next.config.ts",
-    "musicas": "node scripts/gerar-indice-musicas.mjs"
+    "lint": "eslint src next.config.ts --max-warnings=0",
+    "musicas": "node scripts/gerar-indice-musicas.mjs",
+    "test": "tsx --test src/**/*.test.ts"
   },
   "dependencies": {
     "next": "^15.5.6",
@@ -20,6 +21,7 @@
     "@types/react-dom": "^19.1.7",
     "eslint": "^9.28.0",
     "eslint-config-next": "^15.5.6",
+    "tsx": "^4.23.15",
     "typescript": "^5.8.3"
   }
 }

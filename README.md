@@ -2,6 +2,8 @@
 
 Projeto acadêmico de catálogo musical para a matéria de Gerenciamento de Projetos / Metodologias Ágeis.
 
+favor atualizar o site (https://spotify-clone-omega-eosin.vercel.app)
+
 ## O que existe no código
 
 - **Catálogo:** lista inicial de músicas e operações para consultar, adicionar e remover faixas.
@@ -9,16 +11,18 @@ Projeto acadêmico de catálogo musical para a matéria de Gerenciamento de Proj
 - **Descoberta externa:** busca faixas no SoundCloud e confere título, artista e letra (LRCLIB/MusicBrainz) pela API HTTP e pela interface web.
 - **Favoritos:** mantém faixas favoritas e impede duplicatas.
 - **Playlists:** cria playlists, lista e busca por ID e permite adicionar/remover IDs de faixas.
+- **Player:** toca, pausa, retoma e para. WAV, AIFF, AU e MP3 locais saem pelo mixer do Java. Uma faixa adicionada pela pesquisa pede o stream HTTPS que o SoundCloud autorizar e toca sem gravar o arquivo. Se não houver arquivo nem stream, o terminal usa um tom com a duração cadastrada.
+- **Pesquisa online:** a opção 19 do menu busca o nome no SoundCloud e adiciona título, artista, duração e o id da faixa ao catálogo, com o link original.
 - **API HTTP:** `ApiServer` expõe catálogo, favoritos, playlists e descoberta em JSON (contrato em [`docs/API.md`](docs/API.md), decisão em [ADR-0002](docs/architecture/decisions/ADR-0002-api-http-java-frontend-next.md)).
 - **Testes:** testes automatizados com JUnit 5 para as regras principais e para a API.
 
-O menu de terminal (`Main`) continua cobrindo catálogo e playlists. A interface web em `frontend/` consome a API Java; ainda não implementa reprodução de áudio.
+O menu de terminal (`Main`) continua cobrindo catálogo e playlists. A interface web em `frontend/` consome a API Java e já abre com um catálogo de gravações em licença livre, tocadas no navegador a partir do Internet Archive. Também toca arquivos que a pessoa importa. A API não envia o stream do SoundCloud; essas faixas continuam abrindo no link original.
 
 > **Backend congelado.** A alteração que conectou a API foi a última mudança planejada no backend. Daqui em diante o trabalho é só no frontend. Se o frontend precisar de algo novo do backend, registre em [Pedidos para a equipe de backend](#pedidos-para-a-equipe-de-backend) em vez de alterar `src/` diretamente.
 
 ## Requisitos
 
-- JDK 17
+- JDK 25
 - Maven 3.9 ou compatível
 
 ## Como compilar e testar
@@ -29,7 +33,11 @@ Na raiz do repositório, execute:
 mvn clean verify
 ```
 
-O comando compila os fontes e executa os testes automatizados. Para iniciar o menu de terminal:
+O comando compila os fontes e executa os testes automatizados.
+
+No Visual Studio Code, abra a pasta do projeto e use **Run and Debug** com a configuração `Main (terminal)`. É preciso o Extension Pack for Java. No IntelliJ, abra o `pom.xml` ou o projeto e execute a configuração `Main`.
+
+Para iniciar o menu de terminal pelo Maven:
 
 ```bash
 mvn -q org.codehaus.mojo:exec-maven-plugin:3.5.0:java -Dexec.mainClass=Main
@@ -48,14 +56,23 @@ mvn -q org.codehaus.mojo:exec-maven-plugin:3.5.0:java -Dexec.mainClass=Main
 
 > No Windows, se a API ou os testes falharem com `Unable to establish loopback connection`, o caminho da pasta temporária está impedindo o JDK de criar sockets locais. Defina `-Djdk.net.unixdomain.tmpdir=C:\Users\<seu-usuario>` (por exemplo, em `MAVEN_OPTS` ou `-DargLine=...` nos testes).
 
+## Branches
+
+- `main`: código original, já com as funções do grupo. Só recebe o que passou na branch de teste.
+- `integracao`: branch global para testar junto antes de ir para a `main`.
+- `joao-paulo`, `joao-vitor`, `lucas-belucci-bellini`, `miguel`, `henrique` e `caue`: uma branch por participante, para alterar sem mexer direto no original.
+
 ## Organização atual
 
-- `src/`: classes Java do projeto.
-- `tests/`: testes automatizados JUnit.
-- `docs/`: relatórios e documentação técnica.
-- `frontend/`: aplicação web Next.js + React que consome a API Java.
-- `.github/workflows/frontend.yml`: build automatizado da interface web.
-- `.github/workflows/java-tests.yml`: compilação e testes no GitHub Actions.
+A raiz guarda só a configuração do projeto (`pom.xml`, `README.md`, `AGENTS.md`). O código que roda não fica mais solto nessa pasta.
+
+- `src/`: aplicação Java do terminal, da API e do player.
+- `tests/`: testes automatizados com JUnit 5.
+- `docs/`: regras, decisões de arquitetura, API e relatórios.
+- `frontend/`: interface web Next.js que consome a API Java.
+- `lib/`: bibliotecas usadas pelo IntelliJ (Jackson e JLayer). O Maven baixa as mesmas dependências pelo `pom.xml`.
+- `legado/prototipos/`: rascunhos antigos, fora do build.
+- `.github/workflows/`: compilação, testes e verificação do repositório.
 
 > **Nota:** os arquivos Java permanecem no pacote padrão por enquanto, para manter compatibilidade com a estrutura acadêmica existente. Uma migração para pacotes nomeados pode ser feita em uma alteração separada.
 
@@ -89,6 +106,7 @@ O frontend não altera `src/`. Pendências que dependem do backend ficam registr
 4. **Menu de descoberta no terminal:** as opções de busca no SoundCloud e verificação de letra sumiram do `Main` em um merge anterior (estavam no commit `aafd084`). A funcionalidade existe na API; restaurar no terminal é opcional.
 5. **Arquivos Java soltos na raiz** (`FavoriteSongsKeeper.java`, `LikedTracksRegistry (1).java`, `TrackCatalog.java`, `TrackSource.java`, `TrackNotFoundException.java`, `UnknownTrackException.java`): não são compilados pelo Maven e parte deles nem compila. Decidir se devem ser removidos ou integrados.
 6. **Pacotes nomeados:** os fontes continuam no pacote padrão (ver ADR-0001).
+7. **Stream para o player web:** a API não devolve a URL temporária que `SoundCloudSearchService.urlDeStream` já obtém. Sem esse endpoint, ou um proxy de áudio, o frontend não consegue tocar faixas do SoundCloud e só reproduz arquivos locais escolhidos no navegador.
 
 ## Se o grupo decidir não usar a API
 
